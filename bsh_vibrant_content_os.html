@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSH Vibrant Line — Content OS</title>
+<style>
+  :root {
+    --navy: #0D1B3E;
+    --navy-light: #131C3F;
+    --teal: #00C9A7;
+    --gold: #C9A84C;
+    --purple: #7B2FBE;
+    --pink: #E91E8C;
+    --off-white: #F5F0E8;
+    --text-secondary: rgba(245,240,232,0.65);
+    --text-tertiary: rgba(245,240,232,0.4);
+    --border: rgba(245,240,232,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #080f22;
+    color: var(--off-white);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .os-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .os-header {
+    background: var(--navy);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    border: 1px solid var(--border);
+  }
+  .os-brand { font-size: 11px; font-weight: 600; color: var(--teal); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 4px; }
+  .os-title { font-size: 20px; font-weight: 600; color: var(--off-white); }
+
+  .nav-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ntab {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: transparent;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .ntab:hover { color: var(--off-white); border-color: rgba(255,255,255,0.35); }
+  .ntab.active { background: var(--teal); border-color: var(--teal); color: var(--navy); }
+
+  /* PILLAR SELECTOR */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 600px) { .pillars-grid { grid-template-columns: repeat(2,1fr); } }
+
+  .pillar-tab {
+    padding: 12px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--navy);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .pillar-tab:hover { border-color: rgba(245,240,232,0.25); }
+  .pillar-tab.active { border-width: 2px; }
+  .pillar-tab.p0.active { border-color: var(--teal); background: rgba(0,201,167,0.07); }
+  .pillar-tab.p1.active { border-color: var(--gold); background: rgba(201,168,76,0.07); }
+  .pillar-tab.p2.active { border-color: var(--purple); background: rgba(123,47,190,0.07); }
+  .pillar-tab.p3.active { border-color: var(--pink); background: rgba(233,30,140,0.07); }
+
+  .pillar-dot { width: 8px; height: 8px; border-radius: 50%; margin: 0 auto 7px; }
+  .p0 .pillar-dot { background: var(--teal); }
+  .p1 .pillar-dot { background: var(--gold); }
+  .p2 .pillar-dot { background: var(--purple); }
+  .p3 .pillar-dot { background: var(--pink); }
+
+  .pillar-tab-name { font-size: 11px; font-weight: 600; color: var(--text-secondary); line-height: 1.3; }
+  .pillar-tab.active .pillar-tab-name { color: var(--off-white); }
+
+  /* CONTENT PANEL */
+  .content-panel {
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .panel-accent { width: 4px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 44px; }
+  .p0-accent { background: var(--teal); }
+  .p1-accent { background: var(--gold); }
+  .p2-accent { background: var(--purple); }
+  .p3-accent { background: var(--pink); }
+
+  .panel-pillar-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+  .panel-pillar-name { font-size: 17px; font-weight: 600; color: var(--off-white); margin-bottom: 6px; }
+  .panel-pillar-why { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+  .panel-body { padding: 1.25rem 1.5rem; }
+
+  .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 10px; }
+
+  .content-types { display: flex; flex-direction: column; gap: 7px; margin-bottom: 1.25rem; }
+  .content-type-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+  .ct-bullet { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .p0-bullet { background: var(--teal); }
+  .p1-bullet { background: var(--gold); }
+  .p2-bullet { background: var(--purple); }
+  .p3-bullet { background: var(--pink); }
+  .ct-text { color: var(--off-white); line-height: 1.45; }
+  .ct-note { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+  .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+  .platform-section { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .platform-header {
+    padding: 10px 14px; background: rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .platform-name { font-size: 13px; font-weight: 600; color: var(--off-white); }
+  .freq-badge { font-size: 11px; padding: 3px 9px; border-radius: 10px; font-weight: 600; }
+  .freq-pinterest { background: rgba(201,168,76,0.15); color: var(--gold); }
+  .freq-instagram { background: rgba(0,201,167,0.12); color: var(--teal); }
+  .freq-threads { background: rgba(123,47,190,0.15); color: #a96ff0; }
+
+  .platform-body { padding: 12px 14px; }
+  .platform-tip { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 8px; }
+  .format-tag {
+    display: inline-block; font-size: 11px; padding: 3px 8px;
+    border-radius: 10px; border: 1px solid var(--border);
+    color: var(--text-secondary); margin: 2px 3px 2px 0;
+  }
+
+  .caption-starter {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 13px; color: var(--off-white);
+    line-height: 1.65; font-style: italic; border-left: 3px solid;
+  }
+  .p0-border { border-color: var(--teal); }
+  .p1-border { border-color: var(--gold); }
+  .p2-border { border-color: var(--purple); }
+  .p3-border { border-color: var(--pink); }
+  .caption-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; font-style: normal; }
+
+  /* RHYTHM */
+  .rhythm-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1rem; }
+  .rhythm-card { padding: 14px; border-radius: 10px; border: 1px solid var(--border); text-align: center; background: rgba(255,255,255,0.03); }
+  .rhythm-platform { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; letter-spacing: 0.05em; }
+  .rhythm-freq { font-size: 22px; font-weight: 700; color: var(--off-white); }
+  .rhythm-unit { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+  /* BATCH */
+  .batch-steps { display: flex; flex-direction: column; gap: 7px; }
+  .batch-step { display: flex; align-items: flex-start; gap: 13px; padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.04); }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--navy-light); color: var(--teal);
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    border: 1px solid var(--teal);
+  }
+  .step-text { font-size: 13px; color: var(--off-white); line-height: 1.45; font-weight: 500; }
+  .step-note { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; font-weight: 400; }
+
+  .hidden { display: none; }
+
+  /* FOOTER */
+  .os-footer {
+    text-align: center; margin-top: 2rem;
+    font-size: 11px; color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+<div class="os-wrap">
+
+  <div class="os-header">
+    <div>
+      <div class="os-brand">Byte-Sized Heroes · Vibrant Line</div>
+      <div class="os-title">Content OS</div>
+    </div>
+    <div class="nav-tabs">
+      <button class="ntab active" onclick="setView('pillars')">Pillars</button>
+      <button class="ntab" onclick="setView('rhythm')">Rhythm</button>
+      <button class="ntab" onclick="setView('batch')">Batch Workflow</button>
+    </div>
+  </div>
+
+  <!-- PILLARS VIEW -->
+  <div id="view-pillars">
+    <div class="pillars-grid">
+      <div class="pillar-tab p0 active" onclick="setPillar(0)">
+        <div class="pillar-dot"></div>
+        <div class="pillar-tab-name">The Origin Story</div>
+      </div>
+      <div class="pillar-tab p1" onclick="setPillar(1)">
+        <div class="pillar-dot"></div>
+        <div class="pillar-tab-name">Winging It to Winning It</div>
+      </div>
+      <div class="pillar-tab p2" onclick="setPillar(2)">
+        <div class="pillar-dot"></div>
+        <div class="pillar-tab-name">Behind the Brand</div>
+      </div>
+      <div class="pillar-tab p3" onclick="setPillar(3)">
+        <div class="pillar-dot"></div>
+        <div class="pillar-tab-name">Glow Up Proof</div>
+      </div>
+    </div>
+    <div class="content-panel" id="pillar-panel"></div>
+  </div>
+
+  <!-- RHYTHM VIEW -->
+  <div id="view-rhythm" class="hidden">
+    <div class="content-panel">
+      <div class="panel-header">
+        <div class="panel-accent p0-accent"></div>
+        <div>
+          <div class="panel-pillar-label">Posting Rhythm</div>
+          <div class="panel-pillar-name">Platform-by-platform cadence</div>
+          <div class="panel-pillar-why">Sustainable beats aggressive. These are your starting numbers — adjust up once content creation feels like play.</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="section-label">Weekly targets</div>
+        <div class="rhythm-row">
+          <div class="rhythm-card"><div class="rhythm-platform">Pinterest</div><div class="rhythm-freq">5–7</div><div class="rhythm-unit">pins / week</div></div>
+          <div class="rhythm-card"><div class="rhythm-platform">Instagram</div><div class="rhythm-freq">3–4</div><div class="rhythm-unit">posts / week</div></div>
+          <div class="rhythm-card"><div class="rhythm-platform">Threads</div><div class="rhythm-freq">4–5</div><div class="rhythm-unit">posts / week</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Why these numbers</div>
+        <div class="content-types">
+          <div class="content-type-row"><div class="ct-bullet p0-bullet"></div><div><div class="ct-text">Pinterest posts compound. Every pin is a permanent search result pointing to your Etsy listing. High frequency here is always worth it — much of it can be repurposed from Instagram graphics.</div></div></div>
+          <div class="content-type-row"><div class="ct-bullet p1-bullet"></div><div><div class="ct-text">Instagram 3–4x builds consistent presence without demanding daily creation. Carousels and static graphics from a single batch session can cover a full week.</div></div></div>
+          <div class="content-type-row"><div class="ct-bullet p2-bullet"></div><div><div class="ct-text">Threads is low-lift — it's thinking out loud. A single observation or behind-the-brand thought takes minutes. This is your consistency anchor when life gets busy.</div></div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Pillar distribution (per week)</div>
+        <div class="content-types">
+          <div class="content-type-row"><div class="ct-bullet p0-bullet"></div><div><div class="ct-text">The Origin Story — 3–4 posts (your conversion engine, always on)</div></div></div>
+          <div class="content-type-row"><div class="ct-bullet p1-bullet"></div><div><div class="ct-text">Winging It to Winning It — 3–4 posts (your growth engine, prioritise reach platforms)</div></div></div>
+          <div class="content-type-row"><div class="ct-bullet p2-bullet"></div><div><div class="ct-text">Behind the Brand — 2–3 posts (mostly Threads, minimal production lift)</div></div></div>
+          <div class="content-type-row"><div class="ct-bullet p3-bullet"></div><div><div class="ct-text">Glow Up Proof — 1–2 posts (grows naturally as the brand gets traction)</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BATCH VIEW -->
+  <div id="view-batch" class="hidden">
+    <div class="content-panel">
+      <div class="panel-header">
+        <div class="panel-accent p2-accent"></div>
+        <div>
+          <div class="panel-pillar-label">Batch Workflow</div>
+          <div class="panel-pillar-name">One session, one week of content</div>
+          <div class="panel-pillar-why">The goal is a single focused session that fills Metricool for the week. Follow this order — each step feeds the next.</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="section-label">The sequence</div>
+        <div class="batch-steps">
+          <div class="batch-step"><div class="step-num">1</div><div><div class="step-text">Pick your pillar focus for the week</div><div class="step-note">Choose 1–2 pillars to lead with. Rotate weekly so no pillar goes stale.</div></div></div>
+          <div class="batch-step"><div class="step-num">2</div><div><div class="step-text">Write the Threads posts first (10–15 min)</div><div class="step-note">These are your raw thoughts. They'll become captions and graphic copy downstream.</div></div></div>
+          <div class="batch-step"><div class="step-num">3</div><div><div class="step-text">Expand 2–3 Threads posts into Instagram captions</div><div class="step-note">Add context, a hook, and a CTA. The thinking is already done — you're just dressing it.</div></div></div>
+          <div class="batch-step"><div class="step-num">4</div><div><div class="step-text">Build 2–3 Instagram graphics or carousels</div><div class="step-note">Pull the strongest line from each caption as the visual headline. Canva templates speed this up.</div></div></div>
+          <div class="batch-step"><div class="step-num">5</div><div><div class="step-text">Repurpose Instagram graphics as Pinterest pins</div><div class="step-note">Add a keyword-rich pin title and description. Link directly to your Etsy listing. One graphic → 2–3 pins with different descriptions.</div></div></div>
+          <div class="batch-step"><div class="step-num">6</div><div><div class="step-text">Schedule everything in Metricool</div><div class="step-note">Threads: spread across the week. Instagram: 3–4 slots. Pinterest: daily or every other day. Done.</div></div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Time estimate</div>
+        <div class="content-types">
+          <div class="content-type-row"><div class="ct-bullet p2-bullet"></div><div><div class="ct-text">If it feels like play: 2–3 hours covers the full week across all three platforms</div></div></div>
+          <div class="content-type-row"><div class="ct-bullet p3-bullet"></div><div><div class="ct-text">If it feels like work: split into two 45-minute sessions — write on day one, design and schedule on day two</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="os-footer">Byte-Sized Heroes · Vibrant Line · Content OS · Origin Story Collection</div>
+</div>
+
+<script>
+const pillars = [
+  {
+    name: "The Origin Story", label: "Pillar 1 — Product-rooted",
+    why: "Your conversion engine. This is where someone goes from curious to buyer. It shows the tools in action without feeling like an ad.",
+    accent: "p0-accent", bullet: "p0-bullet", border: "p0-border",
+    types: [
+      { text: "Product walkthrough — what's inside, page by page", note: "Works as a carousel on Instagram and a static pin on Pinterest" },
+      { text: "Use case scenario — 'here's how I'd use this on a Sunday reset'", note: "Narrative format. Warm, specific, relatable." },
+      { text: "Before / after — chaotic week vs a week with the planner", note: "High-engagement format. Works across all three platforms." },
+      { text: "Feature spotlight — one page, one benefit, zero jargon", note: "Great for Pinterest SEO. Each feature = its own pin." }
+    ],
+    platforms: [
+      { name: "Pinterest", freq: "3–4 pins", freqClass: "freq-pinterest", tip: "Lead with a keyword-rich title. Link every pin directly to your Etsy listing. Each product feature can be its own pin.", formats: ["Static graphic", "Text-on-image pin", "Product mockup"] },
+      { name: "Instagram", freq: "2x/week", freqClass: "freq-instagram", tip: "Carousels perform best here — use a scroll-stopping cover slide and walk through the product page by page. Static posts work for single feature spotlights.", formats: ["Carousel", "Static post", "Quote graphic"] },
+      { name: "Threads", freq: "1–2x/week", freqClass: "freq-threads", tip: "Short, direct. 'Three things the Origin Story Planner helped me stop doing this week.' No link needed — let the brand speak.", formats: ["Short text post", "List format"] }
+    ],
+    caption: "You've been winging your weeks and honestly? It's exhausting. The Origin Story Planner was built for exactly this moment — when you're done improvising and ready to actually plan the life you keep talking about."
+  },
+  {
+    name: "Winging It to Winning It", label: "Pillar 2 — Audience-rooted",
+    why: "Your growth engine. High reach, deeply shareable. Speaks directly to the identity shift the Vibrant Line is selling — from chaos to clarity.",
+    accent: "p1-accent", bullet: "p1-bullet", border: "p1-border",
+    types: [
+      { text: "Relatable chaos posts — 'me planning my week vs my week'", note: "Meme-adjacent, emotionally resonant. Saves and shares will be high." },
+      { text: "Identity shift content — 'what changed when I stopped winging it'", note: "Narrative. Perfect for carousels and longer Threads posts." },
+      { text: "'You're not lazy' reframes — reframe chaos as a system problem, not a character flaw", note: "This framing is core to the Vibrant Line's philosophy." },
+      { text: "Micro-wins — tiny, real, specific moments of progress", note: "Community-building content. Invites replies and resonance." }
+    ],
+    platforms: [
+      { name: "Pinterest", freq: "2–3 pins", freqClass: "freq-pinterest", tip: "Text-heavy pins with a bold headline perform here. Search intent is high — match it with keywords like 'planning for beginners' or 'get your life together'.", formats: ["Bold text pin", "Tip graphic", "Quote card"] },
+      { name: "Instagram", freq: "2x/week", freqClass: "freq-instagram", tip: "This pillar is your reach driver. Strong opening line on the cover slide. Carousels that tell a before/after story outperform static here.", formats: ["Carousel story", "Bold quote static", "Split graphic"] },
+      { name: "Threads", freq: "2–3x/week", freqClass: "freq-threads", tip: "This is where Threads thrives. Observations, reframes, honest takes. Let it breathe.", formats: ["Observation post", "Short take", "Question prompt"] }
+    ],
+    caption: "You're not behind because you're lazy. You're behind because nobody gave you a system that actually fits your life. That changes today."
+  },
+  {
+    name: "Behind the Brand", label: "Pillar 3 — Process-rooted",
+    why: "Your trust-builder. People don't just buy the product — they buy the brand that made it. This pillar builds loyalty without requiring a face.",
+    accent: "p2-accent", bullet: "p2-bullet", border: "p2-border",
+    types: [
+      { text: "Product origin stories — why a product was built, what gap it filled", note: "The Unbothered Tracker exists because financial chaos is an emotional problem, not a math problem. That's a post." },
+      { text: "Design decisions — why the palette is what it is, why the voice sounds the way it does", note: "Your audience is aesthetically driven — they want to understand the craft." },
+      { text: "Philosophy posts — BSH's point of view on planning, money, self-design", note: "The brand has opinions. Let them show. This is differentiation." },
+      { text: "Behind-the-build moments — what's in progress, what's being figured out", note: "Authenticity without oversharing. The brand is building something — let people watch." }
+    ],
+    platforms: [
+      { name: "Pinterest", freq: "1–2 pins", freqClass: "freq-pinterest", tip: "Brand story pins perform well as evergreen content. Not a hard sell — a conversation starter.", formats: ["Brand story pin", "Philosophy graphic", "Quote card"] },
+      { name: "Instagram", freq: "1x/week", freqClass: "freq-instagram", tip: "One thoughtful post per week is enough. Quality over quantity here.", formats: ["Carousel", "Single graphic", "Typographic post"] },
+      { name: "Threads", freq: "2–3x/week", freqClass: "freq-threads", tip: "The natural home for this pillar. Stream-of-consciousness brand thinking. Conversational, curious, no performance required.", formats: ["Brand thought", "Short story", "Design note"] }
+    ],
+    caption: "The Vibrant Line isn't just bold because bold sells. It's bold because the women it's built for are done being subtle about what they want from their lives."
+  },
+  {
+    name: "Glow Up Proof", label: "Pillar 4 — Community-rooted",
+    why: "Your social proof engine. Wins, progress moments, and eventually customer results — framed as visible growth, not generic testimonials.",
+    accent: "p3-accent", bullet: "p3-bullet", border: "p3-border",
+    types: [
+      { text: "Brand milestone moments — first sale, first review, first 100 pins", note: "Document the journey. Your audience is rooting for you." },
+      { text: "Progress snapshots — 'week one with the tracker vs week four'", note: "Real, specific, time-bound. Your strongest trust content." },
+      { text: "Customer wins (when they arrive) — screenshot, quote, real result", note: "The gold standard. Ask for permission, celebrate loudly." },
+      { text: "Reflections — what the brand has learned, how it's grown", note: "End-of-month or end-of-quarter. Builds long-term brand narrative." }
+    ],
+    platforms: [
+      { name: "Pinterest", freq: "1 pin", freqClass: "freq-pinterest", tip: "Save this pillar for your strongest moments — a real customer win or significant milestone. Evergreen proof points that compound over time.", formats: ["Milestone graphic", "Quote pin", "Results visual"] },
+      { name: "Instagram", freq: "1x/week", freqClass: "freq-instagram", tip: "Celebrate visibly. A milestone post with a bold graphic. This is where the Vibrant palette really sings — gold on navy, teal accents.", formats: ["Celebration post", "Customer quote card", "Milestone graphic"] },
+      { name: "Threads", freq: "1–2x/week", freqClass: "freq-threads", tip: "Honest, warm, specific. No polish needed — just real.", formats: ["Win share", "Reflection post", "Gratitude note"] }
+    ],
+    caption: "30 days with the Glow Up Spreadsheet. She went from 'I have no idea where my money goes' to 'I'm actually saving for the first time in three years.' This is what the Vibrant Line is built for."
+  }
+];
+
+let currentPillar = 0;
+
+function setPillar(i) {
+  currentPillar = i;
+  document.querySelectorAll('.pillar-tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
+  renderPillar(i);
+}
+
+function renderPillar(i) {
+  const p = pillars[i];
+  document.getElementById('pillar-panel').innerHTML = `
+    <div class="panel-header">
+      <div class="panel-accent ${p.accent}"></div>
+      <div>
+        <div class="panel-pillar-label">${p.label}</div>
+        <div class="panel-pillar-name">${p.name}</div>
+        <div class="panel-pillar-why">${p.why}</div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="section-label">Content types</div>
+      <div class="content-types">
+        ${p.types.map(t => `<div class="content-type-row"><div class="ct-bullet ${p.bullet}"></div><div><div class="ct-text">${t.text}</div><div class="ct-note">${t.note}</div></div></div>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Platform guidance</div>
+      ${p.platforms.map(pl => `
+        <div class="platform-section">
+          <div class="platform-header">
+            <span class="platform-name">${pl.name}</span>
+            <span class="freq-badge ${pl.freqClass}">${pl.freq}</span>
+          </div>
+          <div class="platform-body">
+            <div class="platform-tip">${pl.tip}</div>
+            <div>${pl.formats.map(f => `<span class="format-tag">${f}</span>`).join('')}</div>
+          </div>
+        </div>`).join('')}
+      <div class="divider"></div>
+      <div class="section-label">Sample caption starter</div>
+      <div class="caption-starter ${p.border}">
+        <div class="caption-label">Vibrant Line voice</div>
+        ${p.caption}
+      </div>
+    </div>`;
+}
+
+function setView(v) {
+  ['pillars','rhythm','batch'].forEach((name, i) => {
+    document.querySelectorAll('.ntab')[i].classList.toggle('active', name === v);
+    document.getElementById('view-' + name).classList.toggle('hidden', name !== v);
+  });
+}
+
+renderPillar(0);
+</script>
+</body>
+</html>
