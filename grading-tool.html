@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Grading Assistant</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0f0f11;--surface:#1a1a1f;--surface2:#222228;--border:#2e2e38;
+    --accent:#7c6af7;--accent2:#4cc9a0;--danger:#e05a5a;--warn:#f0a04b;
+    --text:#e8e8f0;--muted:#7a7a90;
+    --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;line-height:1.6;}
+  .app{max-width:860px;margin:0 auto;padding:32px 24px 100px;}
+
+  /* Header + progress */
+  header{margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;}
+  header h1{font-size:22px;font-weight:600;letter-spacing:-0.3px;}
+  header p{color:var(--muted);font-size:13px;margin-top:4px;}
+  .progress-block{text-align:right;flex-shrink:0;}
+  .progress-count{font-size:20px;font-weight:600;font-family:var(--mono);color:var(--text);}
+  .progress-label{font-size:11px;color:var(--muted);margin-top:2px;}
+  .progress-bar-wrap{width:140px;height:4px;background:var(--border);border-radius:2px;margin-top:6px;margin-left:auto;}
+  .progress-bar-fill{height:4px;background:var(--accent2);border-radius:2px;transition:width 0.3s;}
+
+  /* Session banner */
+  .session-banner{background:rgba(124,106,247,0.08);border:1px solid rgba(124,106,247,0.2);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;gap:16px;align-items:flex-start;}
+  .session-banner .icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .session-banner p{font-size:12px;color:var(--muted);line-height:1.7;}
+  .session-banner strong{color:var(--text);}
+  .session-steps{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .session-step{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);}
+  .session-step.once{border-color:rgba(124,106,247,0.4);color:var(--accent);}
+  .session-step.repeat{border-color:rgba(76,201,160,0.4);color:var(--accent2);}
+
+  /* Steps */
+  .step{margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .step.hidden{display:none;}
+  .step-header{padding:12px 18px;display:flex;align-items:center;gap:10px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.2s;}
+  .step-num.done{background:var(--accent2);}
+  .step-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;margin-left:auto;white-space:nowrap;}
+  .badge-once{background:rgba(124,106,247,0.15);color:var(--accent);}
+  .badge-repeat{background:rgba(76,201,160,0.15);color:var(--accent2);}
+  .step-title{font-weight:500;font-size:13px;}
+  .step-body{padding:14px 18px;}
+  .opt-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+  .tip{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.65;background:var(--surface2);border-radius:6px;padding:8px 10px;border-left:2px solid var(--border);}
+  .tip code{background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;font-family:var(--mono);font-size:10px;}
+
+  /* Rubric memory */
+  .rubric-memory{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .saved-rubric-btn{padding:4px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:11px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+  .saved-rubric-btn:hover{border-color:var(--accent);color:var(--text);}
+  .saved-rubric-btn .del-rubric{color:var(--danger);font-size:12px;line-height:1;margin-left:2px;}
+  .save-rubric-row{display:flex;gap:6px;margin-top:8px;}
+  .save-rubric-row input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--sans);font-size:12px;padding:6px 10px;outline:none;}
+  .save-rubric-row input:focus{border-color:var(--accent);}
+  .save-rubric-row input::placeholder{color:var(--muted);}
+  .save-btn{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .save-btn:hover{background:#6b59e0;}
+
+  .grade-grid{display:flex;gap:10px;}
+  .grade-btn{flex:1;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:center;}
+  .grade-btn:hover{border-color:var(--accent);color:var(--text);}
+  .grade-btn.active{border-color:var(--accent);background:rgba(124,106,247,0.12);color:var(--accent);}
+
+  textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:12px;padding:12px;outline:none;transition:border-color 0.15s;line-height:1.6;resize:vertical;}
+  textarea:focus{border-color:var(--accent);}
+  textarea::placeholder{color:var(--muted);}
+  input[type=text],input[type=number]{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:14px;padding:10px 12px;outline:none;transition:border-color 0.15s;}
+  input[type=text]:focus,input[type=number]:focus{border-color:var(--accent);}
+  input[type=text]::placeholder,input[type=number]::placeholder{color:var(--muted);}
+  .char-count{font-size:11px;color:var(--muted);text-align:right;margin-top:4px;font-family:var(--mono);}
+  .char-count.ok{color:var(--accent2);}
+
+  /* Action buttons row */
+  .action-row{display:flex;gap:8px;margin-top:8px;}
+  .run-btn{flex:1;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+  .run-btn:hover{background:#6b59e0;}
+  .run-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .incomplete-btn{padding:14px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+  .incomplete-btn:hover{border-color:var(--danger);color:var(--danger);}
+  .error-box{background:rgba(224,90,90,0.08);border:1px solid rgba(224,90,90,0.25);border-radius:8px;padding:12px 14px;color:var(--danger);font-size:13px;margin-top:10px;display:none;}
+
+  .loading{display:none;text-align:center;padding:32px;color:var(--muted);}
+  .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Results */
+  #results{margin-top:20px;display:none;}
+  .results-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px;flex-wrap:wrap;}
+  .student-name-display{font-size:18px;font-weight:600;}
+  .meta{color:var(--muted);font-size:12px;margin-top:2px;}
+  .view-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0;}
+  .view-btn{padding:7px 14px;font-family:var(--sans);font-size:12px;font-weight:500;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;}
+  .view-btn.active{background:var(--accent);color:#fff;}
+
+  .total-bar{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  .total-label{font-size:13px;color:var(--muted);}
+  .total-sublabel{font-size:11px;color:var(--muted);margin-top:2px;}
+  .total-score{font-size:22px;font-weight:600;font-family:var(--mono);color:var(--text);}
+  .total-score span{font-size:14px;color:var(--muted);font-weight:400;}
+  .confirm-pending-note{font-size:11px;color:var(--warn);margin-top:4px;}
+
+  .summary-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .sum-pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;}
+
+  .score-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+  .score-row.needs-confirm{border-color:rgba(240,160,75,0.4);}
+  .score-row.confirmed{border-color:rgba(76,201,160,0.3);}
+  .score-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer;gap:12px;}
+  .score-header:hover{background:var(--surface2);}
+  .score-cat{font-weight:500;font-size:13px;flex:1;}
+  .score-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .score-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+  .pill-extensive{background:rgba(76,201,160,0.15);color:#4cc9a0;}
+  .pill-convincing{background:rgba(124,106,247,0.15);color:#9d8ff8;}
+  .pill-limited{background:rgba(240,160,75,0.15);color:#f0a04b;}
+  .pill-none{background:rgba(224,90,90,0.15);color:#e05a5a;}
+  .score-pts{font-size:13px;font-weight:600;color:var(--text);font-family:var(--mono);white-space:nowrap;}
+  .score-pts.prelim{color:var(--warn);}
+  .score-pts-max{font-size:11px;color:var(--muted);font-family:var(--mono);}
+  .confirm-tag{font-size:10px;color:var(--warn);font-family:var(--mono);white-space:nowrap;}
+  .confirmed-tag{font-size:10px;color:var(--accent2);font-family:var(--mono);white-space:nowrap;}
+  .score-chevron{color:var(--muted);font-size:11px;transition:transform 0.2s;}
+  .score-chevron.open{transform:rotate(180deg);}
+  .score-detail{display:none;padding:12px 16px 14px;color:var(--muted);font-size:13px;line-height:1.7;border-top:1px solid var(--border);}
+  .score-detail.visible{display:block;}
+  .canvas-hint{margin-top:8px;font-size:11px;color:var(--accent2);font-family:var(--mono);}
+
+  .confirm-panel{background:rgba(240,160,75,0.05);border:1px solid rgba(240,160,75,0.2);border-radius:8px;padding:12px 14px;margin-top:10px;}
+  .confirm-panel-title{font-size:12px;font-weight:600;color:var(--warn);margin-bottom:6px;}
+  .confirm-checklist{font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:10px;padding-left:0;}
+  .confirm-checklist li{list-style:none;padding-left:16px;position:relative;}
+  .confirm-checklist li::before{content:"→";position:absolute;left:0;color:var(--warn);}
+  .confirm-link{color:var(--accent);font-size:12px;word-break:break-all;display:block;margin-bottom:10px;}
+  .level-entry{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .level-pick-btn{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all 0.15s;background:var(--surface2);color:var(--muted);font-family:var(--sans);}
+  .level-pick-btn:hover{border-color:var(--muted);}
+  .level-pick-btn.sel-extensive{background:rgba(76,201,160,0.15);color:#4cc9a0;border-color:#4cc9a0;}
+  .level-pick-btn.sel-convincing{background:rgba(124,106,247,0.15);color:#9d8ff8;border-color:#9d8ff8;}
+  .level-pick-btn.sel-limited{background:rgba(240,160,75,0.15);color:#f0a04b;border-color:#f0a04b;}
+  .level-pick-btn.sel-none{background:rgba(224,90,90,0.15);color:#e05a5a;border-color:#e05a5a;}
+  .pts-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .pts-row input{width:80px;padding:6px 10px;font-size:13px;font-family:var(--mono);}
+  .pts-max-label{font-size:12px;color:var(--muted);font-family:var(--mono);}
+  .confirm-btn{padding:6px 14px;background:var(--accent2);color:#0f0f11;border:none;border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;}
+  .confirm-btn:hover{background:#3ab88e;}
+
+  /* Quick notes */
+  .notes-entry{margin-top:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .notes-entry-header{padding:10px 14px;font-size:12px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);}
+  .notes-entry textarea{border:none;border-radius:0;background:transparent;font-family:var(--sans);font-size:13px;min-height:70px;padding:10px 14px;}
+  .notes-entry textarea:focus{border:none;}
+
+  .teacher-notes-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:13px;color:var(--muted);line-height:1.7;}
+  .teacher-notes-box strong{color:var(--text);display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;}
+
+  /* Student view */
+  #student-view{display:none;}
+  .student-feedback-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap;font-family:var(--sans);}
+  .copy-btn{width:100%;margin-top:12px;padding:12px;background:var(--accent2);color:#0f0f11;border:none;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+  .copy-btn:hover{background:#3ab88e;}
+  .copy-btn.copied{background:var(--surface2);color:var(--accent2);border:1px solid var(--accent2);}
+
+  /* Session log + export */
+  #session-log{margin-top:24px;display:none;}
+  .session-log-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .session-log-header h3{font-size:15px;font-weight:600;}
+  .export-btn{padding:8px 16px;background:var(--accent2);color:#0f0f11;border:none;border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+  .export-btn:hover{background:#3ab88e;}
+  .log-row{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .log-row.incomplete-row{opacity:0.6;}
+  .log-name{font-weight:500;font-size:13px;}
+  .log-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+  .log-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .log-score{font-family:var(--mono);font-size:13px;font-weight:600;}
+  .log-grade-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(124,106,247,0.12);color:var(--accent);}
+  .log-note{font-size:11px;color:var(--warn);font-style:italic;margin-top:3px;}
+
+  /* Floating grade another button */
+  .float-btn{position:fixed;bottom:24px;right:24px;padding:12px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(124,106,247,0.35);transition:all 0.15s;display:none;z-index:100;}
+  .float-btn:hover{background:#6b59e0;transform:translateY(-1px);}
+
+  .clear-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:12px;cursor:pointer;transition:all 0.15s;}
+  .clear-btn:hover{border-color:var(--muted);color:var(--text);}
+  .grade-tag{font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(240,160,75,0.12);color:var(--warn);border:1px solid rgba(240,160,75,0.25);margin-left:6px;font-weight:500;}
+  .inline-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
+  .inline-row input[type=text]{margin-bottom:0;flex:1;width:auto;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>AI Grading Assistant</h1>
+      <p>Rubric once · swap student · teacher + student views · export to CSV</p>
+    </div>
+    <div class="progress-block">
+      <div class="progress-count"><span id="graded-count">0</span> graded</div>
+      <div class="progress-label">this session</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+  </header>
+
+  <div class="session-banner">
+    <div class="icon">💡</div>
+    <div>
+      <strong>How a grading session works</strong>
+      <p>Steps 1–3 stay loaded all session. Only Steps 4–5 swap per student. Results log below for CSV export.</p>
+      <div class="session-steps">
+        <span class="session-step once">1 · Grade level — once</span>
+        <span class="session-step once">2 · Rubric — once per project</span>
+        <span class="session-step once">3 · Exemplars — once per project</span>
+        <span class="session-step repeat">4 · Planning guide — swap (8th only)</span>
+        <span class="session-step repeat">5 · Student info + code — swap each time</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num" id="n1">1</div>
+      <span class="step-title">Select grade level</span>
+      <span class="step-badge badge-once">Set once</span>
+    </div>
+    <div class="step-body">
+      <div class="grade-grid">
+        <button class="grade-btn" onclick="selectGrade(6,this)">6th grade</button>
+        <button class="grade-btn" onclick="selectGrade(7,this)">7th grade</button>
+        <button class="grade-btn" onclick="selectGrade(8,this)">8th grade</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Rubric with memory -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num" id="n2">2</div>
+      <span class="step-title">Paste your Canvas rubric</span>
+      <span class="step-badge badge-once">Set once per project</span>
+    </div>
+    <div class="step-body">
+      <div id="saved-rubrics-row" class="rubric-memory" style="display:none"></div>
+      <div class="opt-label">Paste rubric — include point ranges. Save it to reuse next session.</div>
+      <textarea id="rubric-text" rows="7" placeholder="Paste rubric here — category names, score levels, point ranges, and descriptions..." oninput="onRubricInput()"></textarea>
+      <div class="char-count" id="rubric-chars">0 characters</div>
+      <div class="save-rubric-row">
+        <input type="text" id="rubric-name" placeholder="Name this rubric to save it (e.g. 6th HTML U2L5)">
+        <button class="save-btn" onclick="saveRubric()">Save rubric</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num" id="n3">3</div>
+      <span class="step-title">Paste exemplar context <span style="color:var(--muted);font-weight:400">(optional)</span></span>
+      <span class="step-badge badge-once">Set once per project</span>
+    </div>
+    <div class="step-body">
+      <div class="opt-label">Project brief, user profiles, planning examples, or reference code</div>
+      <textarea id="exemplar-text" rows="5" placeholder="Paste exemplar content here. Label multiple exemplars clearly (see tip)."></textarea>
+      <div class="tip">
+        <strong style="color:var(--text);font-size:11px;">Multiple exemplars:</strong> separate with labels:<br>
+        <code>=== USER PROFILE ===</code> · <code>=== EXEMPLAR CODE 1 ===</code> · <code>=== EXEMPLAR CODE 2 ===</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Planning guide (8th only) -->
+  <div class="step hidden" id="step-planning">
+    <div class="step-header">
+      <div class="step-num" id="n4">4</div>
+      <span class="step-title">Paste student planning guide <span class="grade-tag">8th grade only</span></span>
+      <span class="step-badge badge-repeat">Swap for each student</span>
+    </div>
+    <div class="step-body">
+      <div class="opt-label">Copy the student's digital planning guide and paste here</div>
+      <textarea id="planning-text" rows="6" placeholder="Paste the student's planning guide — design notes, decisions, sketches described in text..."></textarea>
+    </div>
+  </div>
+
+  <!-- Step 5 / 4: Student info + code -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num" id="n5">4</div>
+      <span class="step-title">Enter student info and paste their <span id="code-type-label">code</span></span>
+      <span class="step-badge badge-repeat">Swap for each student</span>
+    </div>
+    <div class="step-body">
+      <div class="inline-row">
+        <input type="text" id="student-name" placeholder="Student name">
+        <input type="text" id="project-link" placeholder="Project link (for visual confirmation)" style="flex:1.4">
+      </div>
+      <textarea id="student-code" rows="9" placeholder="Paste the student's code here..."></textarea>
+      <div id="error-box" class="error-box"></div>
+      <div class="action-row">
+        <button class="run-btn" id="run-btn" onclick="runGrading()">Grade this submission →</button>
+        <button class="incomplete-btn" onclick="markIncomplete()">Mark as incomplete / not submitted</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div id="loading-msg" style="font-size:13px">Reading rubric and student work...</div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="results-header">
+      <div>
+        <div class="student-name-display" id="result-name"></div>
+        <div class="meta" id="result-meta"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-teacher" onclick="switchView('teacher')">Teacher view</button>
+          <button class="view-btn" id="btn-student" onclick="switchView('student')">Student view</button>
+        </div>
+        <button class="clear-btn" onclick="nextStudent()">Grade another →</button>
+      </div>
+    </div>
+
+    <!-- Teacher view -->
+    <div id="teacher-view">
+      <div class="total-bar" id="total-bar" style="display:none">
+        <div>
+          <div class="total-label">Suggested total</div>
+          <div class="total-sublabel">Review before entering in Canvas</div>
+          <div class="confirm-pending-note" id="confirm-pending-note" style="display:none">⚠ Preliminary scores included — confirm visual criteria to finalize</div>
+        </div>
+        <div class="total-score" id="total-score">—</div>
+      </div>
+      <div class="summary-strip" id="summary-strip"></div>
+      <div id="score-rows"></div>
+      <div class="teacher-notes-box" id="ai-notes-box" style="display:none">
+        <strong>AI observations</strong>
+        <span id="ai-notes-text"></span>
+      </div>
+      <!-- Quick notes -->
+      <div class="notes-entry">
+        <div class="notes-entry-header">Your notes for this student (saved with session export)</div>
+        <textarea id="teacher-quick-notes" placeholder="Flag anything worth remembering — follow up needed, academic integrity concern, parent contact, etc." oninput="syncNotes()"></textarea>
+      </div>
+    </div>
+
+    <!-- Student view -->
+    <div id="student-view" style="display:none">
+      <div class="student-feedback-box" id="student-feedback-box"></div>
+      <button class="copy-btn" id="copy-btn" onclick="copyFeedback()">Copy student feedback to clipboard</button>
+    </div>
+  </div>
+
+  <!-- Session log -->
+  <div id="session-log">
+    <div class="session-log-header">
+      <h3>Session log</h3>
+      <button class="export-btn" onclick="exportCSV()">Export to CSV</button>
+    </div>
+    <div id="log-rows"></div>
+  </div>
+</div>
+
+<!-- Floating grade another button -->
+<button class="float-btn" id="float-btn" onclick="nextStudent()">Grade another →</button>
+
+<script>
+let state = {
+  grade: null,
+  scores: [],
+  projectLink: '',
+  studentFeedbackText: '',
+  sessionLog: [],
+  totalStudents: 130
+};
+
+const codeLabels = {6:'HTML', 7:'JavaScript', 8:'JavaScript'};
+const codePlaceholders = {
+  6:'Paste the student\'s HTML code here...',
+  7:'Paste the student\'s JavaScript code here...',
+  8:'Paste the student\'s JavaScript code here...'
+};
+
+// ── Rubric memory (localStorage) ──────────────────────────────
+function loadSavedRubrics() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_rubrics') || '[]');
+    const row = document.getElementById('saved-rubrics-row');
+    if (!saved.length) { row.style.display = 'none'; return; }
+    row.style.display = 'flex';
+    row.innerHTML = saved.map((r,i) =>
+      `<button class="saved-rubric-btn" onclick="loadRubric(${i})">
+        ${r.name}
+        <span class="del-rubric" onclick="deleteRubric(event,${i})">✕</span>
+      </button>`
+    ).join('');
+  } catch(e) {}
+}
+
+function saveRubric() {
+  const name = document.getElementById('rubric-name').value.trim();
+  const text = document.getElementById('rubric-text').value.trim();
+  if (!name) return alert('Enter a name for this rubric first.');
+  if (!text) return alert('Paste a rubric before saving.');
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_rubrics') || '[]');
+    const existing = saved.findIndex(r => r.name === name);
+    if (existing >= 0) saved[existing].text = text;
+    else { if (saved.length >= 5) saved.shift(); saved.push({name, text}); }
+    localStorage.setItem('saved_rubrics', JSON.stringify(saved));
+    document.getElementById('rubric-name').value = '';
+    loadSavedRubrics();
+  } catch(e) {}
+}
+
+function loadRubric(i) {
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_rubrics') || '[]');
+    if (saved[i]) {
+      document.getElementById('rubric-text').value = saved[i].text;
+      onRubricInput();
+    }
+  } catch(e) {}
+}
+
+function deleteRubric(e, i) {
+  e.stopPropagation();
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_rubrics') || '[]');
+    saved.splice(i,1);
+    localStorage.setItem('saved_rubrics', JSON.stringify(saved));
+    loadSavedRubrics();
+  } catch(e) {}
+}
+
+// ── Grade level ────────────────────────────────────────────────
+function selectGrade(g, el) {
+  state.grade = g;
+  document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('n1').classList.add('done');
+  document.getElementById('code-type-label').textContent = codeLabels[g] || 'code';
+  document.getElementById('student-code').placeholder = codePlaceholders[g] || 'Paste the student\'s code here...';
+  const planStep = document.getElementById('step-planning');
+  if (g === 8) {
+    planStep.classList.remove('hidden');
+    document.getElementById('n4').textContent = '4';
+    document.getElementById('n5').textContent = '5';
+  } else {
+    planStep.classList.add('hidden');
+    document.getElementById('planning-text').value = '';
+    document.getElementById('n4').textContent = '4';
+    document.getElementById('n5').textContent = '4';
+  }
+}
+
+function onRubricInput() {
+  const val = document.getElementById('rubric-text').value;
+  const el = document.getElementById('rubric-chars');
+  el.textContent = val.length + ' characters';
+  el.className = 'char-count' + (val.length > 200 ? ' ok' : '');
+  document.getElementById('n2').classList.toggle('done', val.length > 200);
+}
+
+function switchView(v) {
+  document.getElementById('teacher-view').style.display = v === 'teacher' ? 'block' : 'none';
+  document.getElementById('student-view').style.display = v === 'student' ? 'block' : 'none';
+  document.getElementById('btn-teacher').classList.toggle('active', v === 'teacher');
+  document.getElementById('btn-student').classList.toggle('active', v === 'student');
+}
+
+// ── Mark incomplete ────────────────────────────────────────────
+function markIncomplete() {
+  const name = document.getElementById('student-name').value.trim() || 'Unknown student';
+  if (!state.grade) return showError('Please select a grade level first.');
+  addToLog({ name, grade: state.grade, total: 0, max: 0, scores: [], notes: '', incomplete: true, studentFeedback: '' });
+  clearStudentFields();
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('float-btn').style.display = 'none';
+  document.getElementById('student-name').focus();
+}
+
+// ── Main grading ───────────────────────────────────────────────
+async function runGrading() {
+  const rubric = document.getElementById('rubric-text').value.trim();
+  const exemplar = document.getElementById('exemplar-text').value.trim();
+  const planning = document.getElementById('planning-text').value.trim();
+  const code = document.getElementById('student-code').value.trim();
+  const name = document.getElementById('student-name').value.trim() || 'Student';
+  const link = document.getElementById('project-link').value.trim();
+  const codeType = codeLabels[state.grade] || 'code';
+
+  document.getElementById('error-box').style.display = 'none';
+  if (!state.grade) return showError('Please select a grade level.');
+  if (!rubric) return showError('Please paste your Canvas rubric in Step 2.');
+  if (state.grade === 8 && !planning) return showError('Please paste the student\'s planning guide in Step 4.');
+  if (!code) return showError('Please paste the student\'s ' + codeType + ' code.');
+
+  state.projectLink = link;
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('float-btn').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+
+  const msgs = ['Reading rubric criteria...','Analyzing student work...','Scoring each category...','Writing student feedback...'];
+  let mi = 0;
+  const ticker = setInterval(() => { document.getElementById('loading-msg').textContent = msgs[(++mi)%msgs.length]; }, 2000);
+
+  const planningSection = planning ? `\nSTUDENT PLANNING GUIDE:\n${planning}\n` : '';
+
+  const prompt = `You are grading a grade ${state.grade} student's web project.
+
+CANVAS RUBRIC (includes point ranges per level):
+${rubric}
+
+${exemplar ? 'EXEMPLAR / PROJECT CONTEXT:\n' + exemplar + '\n' : ''}
+STUDENT NAME: ${name}
+${planningSection}
+STUDENT ${codeType.toUpperCase()} CODE:
+\`\`\`
+${code}
+\`\`\`
+
+Score every REQUIRED criterion. Do NOT include optional or stretch criteria.
+${planning ? 'Some criteria apply to planning guide, some to code, some to both.' : ''}
+
+For EVERY criterion — including design/UI ones — make a preliminary score from what the code reveals. Use function calls, variable names, element IDs, event handlers, and screen references as evidence. For criteria where visual design must also be confirmed:
+- Set needs_visual_confirm to true
+- Give a precise checklist of what to verify in the live app (not generic — name specific screens, elements, or behaviors from the code)
+
+Respond with ONLY valid JSON. No markdown fences, no preamble.
+
+{
+  "scores": [
+    {
+      "category": "exact criterion name",
+      "score": "Extensive Evidence"|"Convincing Evidence"|"Limited Evidence"|"No Evidence",
+      "needs_visual_confirm": false,
+      "points": 14.5,
+      "points_max": 17,
+      "evidence": "2-3 sentences from the code",
+      "visual_checklist": ["specific item to verify 1", "specific item to verify 2"],
+      "canvas_hint": "6 words max",
+      "student_feedback": "One sentence to the student, warm and specific, no point values"
+    }
+  ],
+  "notes": "Overall observations or empty string"
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system: 'You are an expert instructional assistant helping a middle school CS teacher grade web development projects. Always make a preliminary score from code. Be specific. Student feedback: warm, honest, actionable, middle-school level, no points. Output only valid JSON — no markdown, no preamble.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    clearInterval(ticker);
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content?.find(b => b.type === 'text')?.text || '';
+    let parsed;
+    try { parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch(e) { throw new Error('Unexpected response format — please try again.'); }
+    state.scores = parsed.scores || [];
+    displayResults(name, state.scores, parsed.notes || '');
+  } catch(err) {
+    clearInterval(ticker);
+    showError(err.message);
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('run-btn').disabled = false;
+  }
+}
+
+// ── Display results ────────────────────────────────────────────
+const pillMap = {
+  'Extensive Evidence':  {cls:'pill-extensive', short:'Extensive'},
+  'Convincing Evidence': {cls:'pill-convincing',short:'Convincing'},
+  'Limited Evidence':    {cls:'pill-limited',   short:'Limited'},
+  'No Evidence':         {cls:'pill-none',       short:'No evidence'}
+};
+
+function displayResults(name, scores, notes) {
+  document.getElementById('result-name').textContent = name;
+  const confirmCount = scores.filter(s => s.needs_visual_confirm && !s.confirmed).length;
+  document.getElementById('result-meta').textContent =
+    `Grade ${state.grade} · ${scores.length} criteria` +
+    (confirmCount ? ` · ${confirmCount} to confirm visually` : '');
+
+  updateTotal();
+
+  const counts = {};
+  scores.forEach(s => { counts[s.score]=(counts[s.score]||0)+1; });
+  document.getElementById('summary-strip').innerHTML = Object.entries(counts).map(([k,v]) => {
+    const p = pillMap[k]||{cls:'pill-unknown',short:k};
+    return `<span class="sum-pill ${p.cls}">${p.short}: ${v}</span>`;
+  }).join('');
+
+  renderScoreRows();
+  buildStudentFeedback(name);
+
+  if (notes) { document.getElementById('ai-notes-text').textContent = notes; document.getElementById('ai-notes-box').style.display = 'block'; }
+  else document.getElementById('ai-notes-box').style.display = 'none';
+
+  document.getElementById('teacher-quick-notes').value = '';
+  switchView('teacher');
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('float-btn').style.display = 'block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Pre-add to log (will be updated on next student)
+  syncCurrentToLog(name);
+}
+
+function updateTotal() {
+  const scores = state.scores;
+  const hasAny = scores.some(s => s.points_max);
+  if (!hasAny) { document.getElementById('total-bar').style.display = 'none'; return; }
+  const total = scores.reduce((sum,s) => {
+    return sum + (s.confirmed && s.confirmed_points !== undefined ? s.confirmed_points : (parseFloat(s.points)||0));
+  }, 0);
+  const max = scores.reduce((sum,s) => sum + (parseFloat(s.points_max)||0), 0);
+  const pending = scores.some(s => s.needs_visual_confirm && !s.confirmed);
+  document.getElementById('total-score').innerHTML = `${total.toFixed(1)} <span>/ ${max.toFixed(0)} pts</span>`;
+  document.getElementById('confirm-pending-note').style.display = pending ? 'block' : 'none';
+  document.getElementById('total-bar').style.display = 'flex';
+}
+
+function renderScoreRows() {
+  document.getElementById('score-rows').innerHTML = state.scores.map((s,i) => {
+    const p = pillMap[s.score]||{cls:'pill-unknown',short:s.score};
+    const needsConfirm = s.needs_visual_confirm && !s.confirmed;
+    const isConfirmed = s.needs_visual_confirm && s.confirmed;
+    const dispPts = s.confirmed && s.confirmed_points !== undefined ? s.confirmed_points : parseFloat(s.points);
+    const hasP = !isNaN(dispPts) && dispPts !== null;
+
+    const ptsHtml = hasP ? `<span class="score-pts${needsConfirm?' prelim':''}">${dispPts.toFixed(1)}<span class="score-pts-max"> / ${s.points_max}</span></span>` : '';
+    const statusTag = needsConfirm ? `<span class="confirm-tag">confirm visually</span>` : (isConfirmed ? `<span class="confirmed-tag">✓ confirmed</span>` : '');
+    const checklist = s.visual_checklist?.length ? `<ul class="confirm-checklist">${s.visual_checklist.map(c=>`<li>${c}</li>`).join('')}</ul>` : '';
+    const levelSel = (lvl) => {
+      const selMap = {'Extensive Evidence':'sel-extensive','Convincing Evidence':'sel-convincing','Limited Evidence':'sel-limited','No Evidence':'sel-none'};
+      const confirmed_sel = (s.confirmed && s.score===lvl) ? selMap[lvl]||'' : '';
+      const short = lvl==='Extensive Evidence'?'Extensive':lvl==='Convincing Evidence'?'Convincing':lvl==='Limited Evidence'?'Limited':'No evidence';
+      return `<button class="level-pick-btn ${confirmed_sel}" onclick="setConfirmedLevel(${i},'${lvl}',this)">${short}</button>`;
+    };
+
+    const confirmPanel = s.needs_visual_confirm ? `
+      <div class="confirm-panel" style="${s.confirmed?'opacity:0.6':''}">
+        <div class="confirm-panel-title">${s.confirmed ? '✓ Confirmed' : 'Confirm visually before finalizing'}</div>
+        ${checklist}
+        ${state.projectLink ? `<a class="confirm-link" href="${state.projectLink}" target="_blank" rel="noopener">Open project →</a>` : ''}
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Adjust level if needed:</div>
+        <div class="level-entry">${['Extensive Evidence','Convincing Evidence','Limited Evidence','No Evidence'].map(levelSel).join('')}</div>
+        ${s.points_max ? `<div class="pts-row">
+          <label style="font-size:12px;color:var(--muted)">Adjust points:</label>
+          <input type="number" id="cpts-${i}" min="0" max="${s.points_max}" step="0.5" value="${(s.confirmed_points!==undefined?s.confirmed_points:parseFloat(s.points)||0).toFixed(1)}" oninput="updateConfirmedPts(${i})">
+          <span class="pts-max-label">/ ${s.points_max} pts</span>
+          <button class="confirm-btn" onclick="confirmCriterion(${i})">Confirm ✓</button>
+        </div>` : `<button class="confirm-btn" onclick="confirmCriterion(${i})" style="margin-top:8px">Confirm ✓</button>`}
+      </div>` : '';
+
+    return `<div class="score-row${needsConfirm?' needs-confirm':''}${isConfirmed?' confirmed':''}" id="row-${i}">
+      <div class="score-header" onclick="tog(${i})">
+        <span class="score-cat">${s.category}</span>
+        <div class="score-right">${ptsHtml}${statusTag}<span class="score-pill ${p.cls}" id="pill-${i}">${p.short}</span><span class="score-chevron" id="ch${i}">▼</span></div>
+      </div>
+      <div class="score-detail" id="sd${i}">${s.evidence}<div class="canvas-hint">→ Canvas: ${s.canvas_hint}</div>${confirmPanel}</div>
+    </div>`;
+  }).join('');
+}
+
+function setConfirmedLevel(i, level, btn) {
+  state.scores[i].score = level;
+  btn.closest('.level-entry').querySelectorAll('.level-pick-btn').forEach(b => b.className='level-pick-btn');
+  const selMap = {'Extensive Evidence':'sel-extensive','Convincing Evidence':'sel-convincing','Limited Evidence':'sel-limited','No Evidence':'sel-none'};
+  btn.classList.add(selMap[level]||'');
+  const p = pillMap[level]||{cls:'pill-unknown',short:level};
+  document.getElementById('pill-'+i).className = 'score-pill ' + p.cls;
+  document.getElementById('pill-'+i).textContent = p.short;
+}
+
+function updateConfirmedPts(i) {
+  const val = parseFloat(document.getElementById('cpts-'+i).value);
+  state.scores[i].confirmed_points = isNaN(val) ? parseFloat(state.scores[i].points)||0 : val;
+  updateTotal();
+}
+
+function confirmCriterion(i) {
+  const s = state.scores[i];
+  const inp = document.getElementById('cpts-'+i);
+  if (inp) { const v = parseFloat(inp.value); s.confirmed_points = isNaN(v) ? parseFloat(s.points)||0 : v; }
+  s.confirmed = true;
+  updateTotal();
+  renderScoreRows();
+  buildStudentFeedback(document.getElementById('result-name').textContent);
+  const confirmCount = state.scores.filter(sc => sc.needs_visual_confirm && !sc.confirmed).length;
+  document.getElementById('result-meta').textContent =
+    `Grade ${state.grade} · ${state.scores.length} criteria` +
+    (confirmCount ? ` · ${confirmCount} to confirm visually` : ' · all confirmed');
+  syncCurrentToLog(document.getElementById('result-name').textContent);
+}
+
+function buildStudentFeedback(name) {
+  const lines = [`Feedback for ${name}\n`];
+  state.scores.forEach(s => {
+    const icon = s.score==='Extensive Evidence'?'✓✓':s.score==='Convincing Evidence'?'✓':s.score==='Limited Evidence'?'△':'✗';
+    const pending = s.needs_visual_confirm && !s.confirmed ? ' (teacher review pending)' : '';
+    lines.push(`${icon} ${s.category}${pending}\n${s.student_feedback}`);
+  });
+  state.studentFeedbackText = lines.join('\n\n');
+  document.getElementById('student-feedback-box').textContent = state.studentFeedbackText;
+}
+
+function syncNotes() { syncCurrentToLog(document.getElementById('result-name').textContent); }
+
+function syncCurrentToLog(name) {
+  const total = state.scores.reduce((sum,s) => sum+(s.confirmed&&s.confirmed_points!==undefined?s.confirmed_points:parseFloat(s.points)||0),0);
+  const max = state.scores.reduce((sum,s) => sum+(parseFloat(s.points_max)||0),0);
+  const notes = document.getElementById('teacher-quick-notes').value.trim();
+  const existing = state.sessionLog.findIndex(r => r.name===name && !r.incomplete);
+  const entry = { name, grade: state.grade, total, max, scores: state.scores, notes, incomplete: false, studentFeedback: state.studentFeedbackText };
+  if (existing >= 0) state.sessionLog[existing] = entry; else state.sessionLog.push(entry);
+  renderLog();
+}
+
+// ── Session log ────────────────────────────────────────────────
+function addToLog(entry) {
+  state.sessionLog.push(entry);
+  renderLog();
+  updateProgress();
+}
+
+function renderLog() {
+  if (!state.sessionLog.length) return;
+  document.getElementById('session-log').style.display = 'block';
+  document.getElementById('log-rows').innerHTML = [...state.sessionLog].reverse().map(r => {
+    const scoreStr = r.incomplete ? 'Incomplete' : `${r.total.toFixed(1)} / ${r.max.toFixed(0)}`;
+    return `<div class="log-row${r.incomplete?' incomplete-row':''}">
+      <div>
+        <div class="log-name">${r.name}</div>
+        <div class="log-meta">Grade ${r.grade}${r.incomplete?' · Not submitted':''}</div>
+        ${r.notes ? `<div class="log-note">${r.notes}</div>` : ''}
+      </div>
+      <div class="log-right">
+        <span class="log-score">${scoreStr}</span>
+        <span class="log-grade-badge">Gr. ${r.grade}</span>
+      </div>
+    </div>`;
+  }).join('');
+  updateProgress();
+}
+
+function updateProgress() {
+  const n = state.sessionLog.length;
+  document.getElementById('graded-count').textContent = n;
+  const pct = Math.min(100, Math.round(n / state.totalStudents * 100));
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ── CSV Export ─────────────────────────────────────────────────
+function exportCSV() {
+  if (!state.sessionLog.length) return;
+  const allCats = [...new Set(state.sessionLog.flatMap(r => (r.scores||[]).map(s => s.category)))];
+  const headers = ['Student Name','Grade','Total Points','Max Points','Incomplete',...allCats.flatMap(c=>[c+' - Level',c+' - Points']),'Teacher Notes'];
+  const rows = state.sessionLog.map(r => {
+    const base = [r.name, r.grade, r.incomplete?0:r.total.toFixed(1), r.max.toFixed(0), r.incomplete?'YES':''];
+    const catCols = allCats.flatMap(c => {
+      const s = (r.scores||[]).find(sc => sc.category===c);
+      if (!s) return ['',''];
+      const pts = s.confirmed&&s.confirmed_points!==undefined?s.confirmed_points:parseFloat(s.points)||0;
+      return [s.score, pts.toFixed(1)];
+    });
+    return [...base,...catCols,r.notes||''];
+  });
+
+  const csv = [headers,...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `grades_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ── Navigation ─────────────────────────────────────────────────
+function nextStudent() {
+  // Save current to log before clearing
+  const name = document.getElementById('result-name').textContent;
+  if (name && state.scores.length) syncCurrentToLog(name);
+  clearStudentFields();
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('float-btn').style.display = 'none';
+  document.getElementById('student-name').focus();
+  window.scrollTo({top: document.getElementById('step-planning').classList.contains('hidden') ? 700 : 850, behavior:'smooth'});
+}
+
+function clearStudentFields() {
+  document.getElementById('student-name').value = '';
+  document.getElementById('project-link').value = '';
+  document.getElementById('student-code').value = '';
+  if (state.grade===8) document.getElementById('planning-text').value='';
+  state.scores = []; state.studentFeedbackText = ''; state.projectLink = '';
+}
+
+function copyFeedback() {
+  navigator.clipboard.writeText(state.studentFeedbackText).then(() => flashCopy()).catch(() => { const ta=document.createElement('textarea');ta.value=state.studentFeedbackText;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flashCopy(); });
+}
+
+function flashCopy() {
+  const btn = document.getElementById('copy-btn');
+  btn.textContent='✓ Copied to clipboard'; btn.classList.add('copied');
+  setTimeout(()=>{btn.textContent='Copy student feedback to clipboard';btn.classList.remove('copied');},3000);
+}
+
+function tog(i) { document.getElementById('sd'+i).classList.toggle('visible'); document.getElementById('ch'+i).classList.toggle('open'); }
+function showError(msg) { const b=document.getElementById('error-box'); b.textContent=msg; b.style.display='block'; }
+
+// Init
+loadSavedRubrics();
+</script>
+</body>
+</html>
