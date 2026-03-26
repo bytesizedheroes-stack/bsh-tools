@@ -800,16 +800,16 @@ function updateProgress() {
 function exportCSV() {
   if (!state.sessionLog.length) return;
   const allCats = [...new Set(state.sessionLog.flatMap(r => (r.scores||[]).map(s => s.category)))];
-  const headers = ['Student Name','Grade','Total Points','Max Points','Incomplete',...allCats.flatMap(c=>[c+' - Level',c+' - Points']),'Teacher Notes'];
+  const headers = ['Student Name','Grade','Total Points','Max Points','Incomplete',...allCats.flatMap(c=>[c+' - Level',c+' - Points',c+' - Evidence']),'Teacher Notes','Student Feedback'];
   const rows = state.sessionLog.map(r => {
     const base = [r.name, r.grade, r.incomplete?0:r.total.toFixed(1), r.max.toFixed(0), r.incomplete?'YES':''];
     const catCols = allCats.flatMap(c => {
       const s = (r.scores||[]).find(sc => sc.category===c);
-      if (!s) return ['',''];
+      if (!s) return ['','',''];
       const pts = s.confirmed&&s.confirmed_points!==undefined?s.confirmed_points:parseFloat(s.points)||0;
-      return [s.score, pts.toFixed(1)];
+      return [s.score, pts.toFixed(1), (s.evidence||'').replace(/\n/g,' ')];
     });
-    return [...base,...catCols,r.notes||''];
+    return [...base,...catCols,r.notes||'',(r.studentFeedback||'').replace(/\n/g,' | ')];
   });
 
   const csv = [headers,...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
