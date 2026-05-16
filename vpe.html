@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BSH Visual Production Engine — Byte-Sized Heroes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<style>
+:root {
+  --navy: #001858;
+  --navy-mid: #0A2A6E;
+  --teal: #2BD4C8;
+  --teal-light: #74F8FF;
+  --gold: #F7C318;
+  --red: #ED1C18;
+  --bubble-fill: #EBF4FF;
+  --bg: #F4F6FA;
+  --surface: #FFFFFF;
+  --surface2: #F0F2F7;
+  --border: #DDE2EE;
+  --border2: #C8CEDD;
+  --text: #0D1B3E;
+  --text2: #4A5578;
+  --text3: #8892AA;
+  --green: #0F6E56;
+  --green-bg: #E1F5EE;
+  --green-border: #1D9E75;
+  --red-bg: #FEE2E2;
+  --red-border: #EF4444;
+  --red-text: #991B1B;
+  --warn-bg: #FEF3C7;
+  --warn-border: #D97706;
+  --warn-text: #92400E;
+  --blue-bg: #EFF6FF;
+  --blue-border: #3B82F6;
+  --blue-text: #1E40AF;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --font: 'Space Grotesk', sans-serif;
+  --mono: 'Space Mono', monospace;
+  --shadow: 0 1px 3px rgba(0,24,88,0.08), 0 4px 12px rgba(0,24,88,0.06);
+  --shadow-md: 0 2px 8px rgba(0,24,88,0.10), 0 8px 24px rgba(0,24,88,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── Header ── */
+.site-header {
+  background: var(--navy);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px; position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,24,88,0.3);
+}
+.site-header .logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 28px; height: 28px; background: var(--teal); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.logo-text { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+.logo-text span { color: var(--teal); }
+.header-badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: rgba(43,212,200,0.15); color: var(--teal); border: 1px solid rgba(43,212,200,0.3); font-family: var(--mono); }
+.navy-lock-header { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--teal-light); font-family: var(--mono); opacity: 0.8; }
+
+/* ── Layout ── */
+.container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem; }
+.page-title { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: .25rem; letter-spacing: -0.02em; }
+.page-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; }
+
+/* ── Toolbar ── */
+.toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.toolbar input, .toolbar select {
+  height: 36px; padding: 0 11px; border: 1px solid var(--border);
+  border-radius: var(--radius-md); background: var(--surface);
+  color: var(--text); font-size: 13px; font-family: var(--font);
+  outline: none; transition: border-color 0.15s;
+}
+.toolbar input { flex: 1; min-width: 160px; }
+.toolbar input:focus, .toolbar select:focus { border-color: var(--teal); }
+.toolbar select { cursor: pointer; }
+
+/* ── Panel grid ── */
+.panel-grid { display: grid; grid-template-columns: 230px 1fr; gap: 1rem; align-items: start; }
+
+/* ── Char list ── */
+.char-list { display: flex; flex-direction: column; gap: 5px; }
+.char-card {
+  padding: 10px 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow);
+}
+.char-card:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.char-card.active { border: 1.5px solid var(--green-border); background: var(--green-bg); }
+.char-card.active .char-name { color: var(--green); }
+.char-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.char-tag { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* ── Detail panel ── */
+.detail-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+}
+.detail-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.char-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,24,88,0.15); }
+.detail-name { font-size: 18px; font-weight: 700; color: var(--navy); letter-spacing: -0.02em; }
+.detail-role { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.archetype-pill { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-top: 5px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); font-weight: 500; }
+.navy-lock { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; padding: 3px 9px; border-radius: 20px; background: var(--navy); color: var(--teal-light); font-family: var(--mono); margin-bottom: 1rem; }
+
+/* ── Spec grid ── */
+.spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.spec-block { background: var(--surface2); border-radius: var(--radius-md); padding: 10px 12px; border: 1px solid var(--border); }
+.spec-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px; font-weight: 600; }
+.spec-value { font-size: 12px; color: var(--text); line-height: 1.4; font-weight: 500; }
+
+/* ── Palette ── */
+.section-title { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin: 1rem 0 5px; }
+.palette-row { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+.dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; }
+.dot-label { font-size: 11px; color: var(--text2); flex: 1; }
+.dot-hex { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+
+/* ── Tags ── */
+.tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.tag.danger { color: var(--red-text); border-color: var(--red-border); background: var(--red-bg); }
+
+/* ── Tabs ── */
+.tabs { display: flex; border-bottom: 1px solid var(--border); margin: 1rem 0 0; overflow-x: auto; }
+.tab-btn { padding: 9px 16px; font-size: 13px; font-family: var(--font); font-weight: 500; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; color: var(--text3); margin-bottom: -1px; transition: all 0.15s; white-space: nowrap; }
+.tab-btn.active { color: var(--green); border-bottom-color: var(--green-border); }
+.tab-btn:hover:not(.active) { color: var(--text); }
+.tab-content { display: none; padding-top: 1rem; }
+.tab-content.active { display: block; }
+
+/* ── Pose / button grids ── */
+.pose-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: .875rem; }
+.sel-btn, .pose-btn, .dir-btn, .icon-btn {
+  padding: 7px 8px; font-size: 11px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--surface2);
+  cursor: pointer; text-align: center; color: var(--text2);
+  transition: all 0.12s; line-height: 1.3; font-family: var(--font); font-weight: 500;
+}
+.sel-btn:hover, .pose-btn:hover, .dir-btn:hover { border-color: var(--border2); color: var(--text); }
+.sel-btn.active, .pose-btn.active, .dir-btn.active { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+
+/* ── Icon tiers ── */
+.icon-tier { margin-bottom: 1rem; }
+.tier-label { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px; display: inline-block; }
+.tier-1-label { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border); }
+.tier-2-label { background: var(--green-bg); color: #065F46; border: 1px solid var(--green-border); }
+.tier-needs-regen { background: var(--red-bg); color: var(--red-text); border: 1px solid var(--red-border); }
+.icon-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+.icon-btn { text-align: left; }
+.icon-btn .icon-name { font-size: 11px; display: block; font-weight: 600; }
+.icon-btn .icon-tier-tag { font-size: 10px; opacity: 0.65; display: block; margin-top: 1px; }
+.icon-btn.active { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+
+/* ── Bubble picker ── */
+.bubble-preview { display: flex; gap: 8px; margin-bottom: 1rem; }
+.bubble-preview-item {
+  flex: 1; padding: 10px 8px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--surface2);
+  cursor: pointer; text-align: center; transition: all 0.15s;
+}
+.bubble-preview-item:hover { border-color: var(--border2); }
+.bubble-preview-item.active { border: 1.5px solid var(--green-border); background: var(--green-bg); }
+.bubble-preview-item svg { display: block; margin: 0 auto 5px; }
+.bubble-label { font-size: 10px; color: var(--text2); font-family: var(--font); font-weight: 600; }
+.bubble-preview-item.active .bubble-label { color: var(--green); }
+.dir-row { display: flex; gap: 6px; margin-bottom: .875rem; }
+.dir-btn { flex: 1; }
+.sub-label { font-size: 11px; color: var(--text2); margin-bottom: 5px; font-weight: 600; }
+
+/* ── Prompt box ── */
+.prompt-box {
+  background: var(--navy); color: var(--teal-light);
+  border-radius: var(--radius-md); padding: 14px;
+  font-family: var(--mono); font-size: 10.5px; line-height: 1.75;
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 260px; overflow-y: auto;
+  border: 1px solid var(--navy-mid);
+}
+.prompt-box.empty { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); font-family: var(--font); font-size: 12px; font-style: italic; }
+.copy-btn {
+  display: flex; align-items: center; gap: 6px; margin-top: 8px;
+  padding: 8px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--green-border); background: var(--green-bg);
+  font-size: 12px; color: var(--green); cursor: pointer;
+  font-family: var(--font); font-weight: 600; transition: all 0.12s;
+}
+.copy-btn:hover { background: var(--green); color: #fff; }
+.copy-btn.copied { background: var(--green); color: #fff; }
+
+/* ── Notes ── */
+.info-note { font-size: 11px; padding: 7px 11px; background: var(--blue-bg); color: var(--blue-text); border-radius: var(--radius-md); margin-bottom: 10px; border-left: 3px solid var(--blue-border); line-height: 1.5; font-weight: 500; }
+.regen-note { font-size: 11px; padding: 6px 10px; background: var(--red-bg); color: var(--red-text); border-radius: var(--radius-md); margin-bottom: 8px; border-left: 3px solid var(--red-border); font-weight: 500; }
+.nia-note { font-size: 12px; color: var(--text2); font-style: italic; padding: 10px 12px; background: var(--surface2); border-radius: var(--radius-md); border-left: 3px solid var(--border2); margin-top: 1rem; }
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text3); }
+.empty-state .empty-icon { font-size: 36px; display: block; margin-bottom: 10px; color: var(--border2); }
+.empty-state p { font-size: 14px; }
+
+/* ── Footer ── */
+.site-footer { text-align: center; padding: 1.5rem; font-size: 11px; color: var(--text3); border-top: 1px solid var(--border); margin-top: 2rem; }
+.site-footer strong { color: var(--navy); }
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .panel-grid { grid-template-columns: 1fr; }
+  .spec-grid { grid-template-columns: 1fr; }
+  .pose-picker { grid-template-columns: repeat(2, 1fr); }
+  .icon-grid { grid-template-columns: 1fr; }
+  .bubble-preview { flex-direction: column; }
+  .site-header { padding: 0 1rem; }
+  .container { padding: 1rem 1rem 2rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">
+    <div class="logo-mark">⚡</div>
+    <div class="logo-text">Byte-Sized <span>Heroes</span></div>
+  </div>
+  <div class="navy-lock-header">
+    <i class="ti ti-lock" style="font-size:11px;"></i>
+    Outline lock: #001858
+  </div>
+  <div class="header-badge">Visual Production Engine v3</div>
+</header>
+
+<div class="container">
+  <div class="page-title">Hero Companion Visual Production Engine</div>
+  <div class="page-subtitle">Select a companion → generate character, icon, or speech bubble prompts for DALL-E / ChatGPT / Copilot</div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="🔍  Search companions..." oninput="filterChars()" />
+    <select id="filterClass" onchange="filterChars()">
+      <option value="">All structure classes</option>
+      <option value="quadruped">Quadruped</option>
+      <option value="bird">Bird</option>
+      <option value="robot">Robot</option>
+      <option value="human">Human mentor</option>
+      <option value="abstract">Abstract / special</option>
+    </select>
+    <select id="filterArchetype" onchange="filterChars()">
+      <option value="">All archetypes</option>
+      <option value="Tactical Thinking">Tactical thinking</option>
+      <option value="Emotional Support">Emotional support</option>
+      <option value="Reflection">Reflection / framing</option>
+      <option value="Creative Expression">Creative expression</option>
+      <option value="Ethical Guidance">Ethical guidance</option>
+      <option value="Structural Navigation">Structural navigation</option>
+      <option value="AI Learning Partner">AI learning partner</option>
+    </select>
+  </div>
+
+  <div class="panel-grid">
+    <div class="char-list" id="charList"></div>
+    <div class="detail-panel" id="detailPanel">
+      <div class="empty-state">
+        <span class="empty-icon"><i class="ti ti-users"></i></span>
+        <p>Select a Hero Companion to view their spec<br>and generate image prompts</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <strong>Byte-Sized Heroes™</strong> · Visual Production Engine v3 · Canon navy outline: <code>#001858</code> · Canon bubble fill: <code>#EBF4FF</code>
+</footer>
+
+<script>
+const NAVY = '#001858';
+const BUBBLE_FILL = '#EBF4FF';
+
+const UNIVERSAL_STYLE = `OUTLINE LOCK — READ FIRST (highest priority rule):
+All outlines must be rendered in deep navy #001858 — a rich blue-navy, NOT black.
+This applies to: outer silhouette, all internal detail lines, facial features, paws, ears, all structural lines.
+Pure black (#000000) must NOT appear anywhere. If in doubt, use #001858.
+
+UNIVERSAL STYLE (locked):
+- Thick outline color: #001858 deep navy (never black, never #000000)
+- Internal detail line color: #001858 deep navy (same as outline)
+- Rounded, friendly shapes only — no sharp or aggressive forms
+- Chibi proportions: oversized head, simplified small body
+- Large oval eyes with tiny white highlights
+- Small simple mouth; soft curved eyebrows
+- Minimal shading: one soft highlight + one soft shadow max
+- Flat/simple educational mascot style — no texture, no painterly rendering
+- No realistic anatomy, no dramatic perspective, no foreshortening
+- No dynamic action scenes or chaotic compositions
+- Clean silhouette readable at small sizes
+- Plain white background
+- Friendly, calm, encouraging emotional tone`;
+
+const ICON_UNIVERSAL = `ICON STYLE (locked — standalone badge, no character present):
+- Circular badge format: concept symbol centered inside a solid color circle
+- Circle background color: use the character's primary accent or palette color (specified below)
+- Outline color on symbol: #001858 deep navy (never black)
+- Flat vector illustration style — no gradients, no drop shadows, no texture
+- Simple bold shapes — readable at 64px and at badge/sticker scale
+- 2–3 colors maximum inside the circle (symbol + one accent + outline)
+- Small 4-pointed star sparkle accent (optional, adds BSH brand energy)
+- White background outside the circle (transparent-ready)
+- NO character, NO text, NO speech bubbles, NO mascot present
+- Style reference: clean educational icon, consistent with flat vector badge design`;
+
+const DALLE_NOTES = `DALL-E / COPILOT GENERATION NOTES:
+- Square 1:1 format
+- Do NOT add any text, labels, or words inside the speech bubble — leave it completely empty
+- Do NOT add decorative patterns or gradients inside the bubble
+- The bubble must be large enough to contain 2–3 lines of text when overlaid in an editor
+- Character must be fully visible and not cropped — anchor at bottom of composition
+- Bubble and character must feel connected — tail must visibly touch the character's mouth area
+- Do not shrink the character to make room for the bubble — maintain chibi scale`;
+
+const STRUCTURE_RULES = {
+  quadruped: `STRUCTURE CLASS — Quadruped:\n- Upright mascot stance, front-facing torso\n- Rounded simplified paws, short torso proportions\n- Tails support silhouette readability\n- Emotion via: paw position, head tilt, eyebrow shape, tail position, slight body lean\n- Avoid realistic animal anatomy or aggressive stance widening`,
+  bird: `STRUCTURE CLASS — Bird:\n- Rounded simplified torso; wing-arms as primary gesture tools\n- Large head-to-body ratio; simplified beak structure\n- Upright readability; movement feels light and bouncy\n- Emotion via: wing position, head tilt, eyebrow shape, body angle\n- Avoid realistic feather rendering`,
+  robot: `STRUCTURE CLASS — Robot:\n- Rounded mechanical forms; approachable geometry\n- Simplified robotics — no hyper-detailed machinery\n- Segmented limbs remain soft and readable\n- Emotion via: head angle, arm position, eye shape/screen orientation, posture\n- Motion feels intentional — avoid chaotic or aggressive mech aesthetics`,
+  human: `STRUCTURE CLASS — Human Mentor:\n- Simplified human anatomy; rounded proportions\n- Educational readability prioritized; minimal realism\n- Restrained movement; grounded posture; gentle gestures\n- Emotion via: posture, hand gestures, eyebrow shape, head angle, facial warmth\n- No superhero framing or action-hero energy`,
+  abstract: `STRUCTURE CLASS — Abstract / Special:\n- Intentionally non-humanlike and non-machinelike swirling symbol form\n- Represents a system, not a person\n- Emotion via: shape energy, implied direction, visual density`
+};
+
+const POSES = [
+  { id: 'neutral', label: 'Neutral standing', desc: `POSE — Neutral Standing:\n- Upright, relaxed posture; small friendly smile\n- Arms/wings/paws relaxed at sides\n- Feet planted evenly, head upright` },
+  { id: 'thinking', label: 'Thinking', desc: `POSE — Thinking:\n- Slight inward head tilt, eyes looking slightly upward\n- Paw/wing/hand raised near chin or cheek\n- Calm thoughtful expression` },
+  { id: 'listening', label: 'Listening', desc: `POSE — Listening:\n- Slight forward lean toward viewer\n- Attentive eyes, soft friendly smile\n- One arm/wing/paw near side of head` },
+  { id: 'explaining_left', label: 'Explaining (left)', desc: `POSE — Explaining (Left):\n- Left arm/paw/wing extended outward to the left\n- Open welcoming posture, calm confident smile\n- Upright balanced stance` },
+  { id: 'explaining_right', label: 'Explaining (right)', desc: `POSE — Explaining (Right):\n- Right arm/paw/wing extended outward to the right\n- Open welcoming posture, calm confident smile\n- Upright balanced stance` },
+  { id: 'curious', label: 'Curious / questioning', desc: `POSE — Questioning / Curious:\n- Slight head tilt, one eyebrow slightly raised\n- One arm/wing/paw lifted, chin-touch gesture\n- Expression: curious and thoughtful, NOT exaggerated` },
+  { id: 'excited', label: 'Excited / success', desc: `POSE — Excited / Success:\n- Both arms/wings raised upward\n- Upright energetic posture, bigger friendly smile\n- Excited but controlled` },
+  { id: 'quack', label: 'Concerned / QUACK', desc: `POSE — Concerned / QUACK Alert:\n- Slight backward lean, head tilted slightly\n- One eyebrow raised unevenly\n- One arm/wing gesturing outward\n- Communicates: "Something doesn't follow" — NOT fear or panic` },
+  { id: 'celebrating', label: 'Celebrating', desc: `POSE — Celebrating:\n- Both arms/wings raised high, cheerful open smile\n- Slight bounce energy, joyful but clean silhouette` }
+];
+
+const BUBBLE_TYPES = [
+  {
+    id: 'speech', label: 'Speech bubble', sub: 'Character is saying something',
+    svgPreview: `<svg width="54" height="38" viewBox="0 0 54 38" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="46" height="26" rx="13" fill="#EBF4FF" stroke="#001858" stroke-width="1.5"/><path d="M14 27 L7 37 L22 27Z" fill="#EBF4FF" stroke="#001858" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+    desc: (dir) => `SPEECH BUBBLE STYLE:\n- Large rounded oval speech bubble — occupies upper ${dir === 'left' ? 'left' : 'right'} portion of composition\n- Bubble fill: #EBF4FF (soft light blue — NOT pure white, NOT bright blue)\n- Bubble outline: #001858 deep navy, 3–4px thick\n- Bubble tail: short, clean, pointing directly toward the character's mouth\n- Bubble interior: completely empty — no text, no patterns, no decorations\n- Bubble size: large enough to contain 2–3 short lines of overlaid text\n- Tail direction: points ${dir === 'left' ? 'down-right toward character on right' : 'down-left toward character on left'}`
+  },
+  {
+    id: 'thought', label: 'Thought bubble', sub: 'Character is thinking something',
+    svgPreview: `<svg width="54" height="42" viewBox="0 0 54 42" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="46" height="26" rx="13" fill="#EBF4FF" stroke="#001858" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="14" cy="32" r="3" fill="#EBF4FF" stroke="#001858" stroke-width="1.5"/><circle cx="9" cy="39" r="2" fill="#EBF4FF" stroke="#001858" stroke-width="1.5"/></svg>`,
+    desc: (dir) => `THOUGHT BUBBLE STYLE:\n- Large cloud-shaped thought bubble, soft bumpy outline — upper ${dir === 'left' ? 'left' : 'right'} of composition\n- Bubble fill: #EBF4FF (soft light blue — NOT pure white)\n- Bubble outline: #001858 deep navy, slightly softer than speech bubble\n- Thought trail: 2–3 small diminishing circles leading from bubble bottom down to character's head\n- Bubble interior: completely empty — no text, no patterns, no decorations\n- Bubble size: large enough to contain 2–3 short lines of overlaid text\n- Conveys: character is thinking/wondering, not speaking aloud`
+  },
+  {
+    id: 'callout', label: 'Callout panel', sub: 'Icon + name + text area (Asa format)',
+    svgPreview: `<svg width="54" height="30" viewBox="0 0 54 30" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="52" height="28" rx="7" fill="#EBF4FF" stroke="#001858" stroke-width="1.5"/><circle cx="14" cy="15" r="8" fill="#001858"/><rect x="26" y="8" width="22" height="3" rx="1.5" fill="#001858" opacity="0.25"/><rect x="26" y="14" width="18" height="2.5" rx="1.25" fill="#001858" opacity="0.18"/><rect x="26" y="20" width="20" height="2.5" rx="1.25" fill="#001858" opacity="0.18"/></svg>`,
+    desc: (_dir) => `CALLOUT PANEL STYLE:\n- Wide horizontal rounded rectangle — landscape orientation\n- Panel fill: #EBF4FF (soft light blue)\n- Panel outline: #001858 deep navy, clean border\n- LEFT SIDE: circular icon area (dark navy circle, ~25% of panel width) — character's icon/symbol centered inside\n- RIGHT SIDE: text area — completely empty, ready for text overlay in Canva\n- A thin vertical line or inset separates icon area from text area\n- No tail — this is a label/caption format, not a speech bubble\n- Panel is standalone — no full character illustration needed, pairs with the character's Tier 2 icon\n- Size: wide rectangle, readable at slide/worksheet scale`
+  }
+];
+
+const COMPANIONS = [
+  { id:'logic-lynx', name:'Logic Lynx', emoji:'🔍', niaVoice:false, role:'Analyst & clarity thinker', archetype:'Tactical Thinking', structureClass:'quadruped', energyLevel:'Medium — analytical, controlled', palette:[{hex:'#6B7280',label:'Lynx gray (body)'},{hex:'#2BD4C8',label:'Teal accent'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:'Analyze & reason', coreQuestion:"What's really happening here, step by step?", restrictedBehaviors:['Chaotic excitement','Exaggerated celebration','Frantic energy','Panic expressions'], characterBlock:`CHARACTER — Logic Lynx:\n- Darker lynx-gray fur (#6B7280) with brighter teal accents (#2BD4C8)\n- All outlines: deep navy #001858 (never black)\n- Blue coding collar; signature ear-tuft flourish\n- Analytical, calm, focused expression`, icons:{tier1:[{id:'ear-tufts',name:'Ear tufts',concept:'Lynx identity',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A pair of lynx ear tufts, simple and bold'},{id:'magnifying-t1',name:'Magnifying glass',concept:'Character prop',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A simple magnifying glass with a clean round lens'}],tier2:[{id:'brain-spark',name:'Brain spark',concept:'Activate reasoning',needsRegen:false,circleColor:'#6B7280',symbolDesc:'A simple rounded brain with a small lightning bolt spark'},{id:'puzzle-piece',name:'Puzzle piece',concept:'Break into parts',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A single puzzle piece, bold and centered'},{id:'notebook',name:'Notebook',concept:'Document reasoning',needsRegen:false,circleColor:'#6B7280',symbolDesc:'A small spiral notebook with ruled lines'},{id:'step-arrows',name:'Step arrows',concept:'Step-by-step thinking',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'Three right-pointing arrows stacked vertically, each slightly offset'}]}},
+  { id:'data-duck', name:'Data Duck', emoji:'🦆', niaVoice:false, role:'Evidence & accuracy specialist', archetype:'Tactical Thinking', structureClass:'bird', energyLevel:'Medium — curious, observational', palette:[{hex:'#FFD220',label:'Hybrid yellow (body)'},{hex:'#FFA500',label:'Orange-gold (shading/feet/beak)'},{hex:'#2BD4C8',label:'Teal data glow'},{hex:'#74F8FF',label:'Highlight teal'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:'Check accuracy (QUACK)', coreQuestion:'Is this information accurate and understood?', restrictedBehaviors:['Chaotic excitement','Panic expressions','Aggressive gestures'], characterBlock:`CHARACTER — Data Duck:\n- Bright yellow body (#FFD220) with orange-gold shading, feet, and beak (#FFA500)\n- Teal data glow accents (#2BD4C8) and cyan highlights (#74F8FF)\n- All outlines: deep navy #001858 (never black)\n- Friendly detective energy — observant, curious`, icons:{tier1:[{id:'duck-rubber',name:'Rubber duck',concept:'Character identity',needsRegen:false,circleColor:'#FFD220',symbolDesc:'A small classic rubber duck silhouette, simple and bold'}],tier2:[{id:'quack-badge',name:'QUACK badge',concept:'Accuracy check signal',needsRegen:false,circleColor:'#FFD220',symbolDesc:'A bold speech bubble containing the word QUACK with a small data symbol'},{id:'speech-bubble-dd',name:'Speech bubble',concept:'Check understanding',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A rounded speech bubble with three small dots'},{id:'duck-orb',name:'Data orb',concept:'Information source',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A glowing crystal orb with a small star sparkle'},{id:'duck-blocks',name:'Data blocks',concept:'Structured evidence',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'Three small stacked cubes arranged in a pyramid'},{id:'duck-feather',name:'Feather / leaf',concept:'Record & document',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A single feather or leaf suggesting a quill'}]}},
+  { id:'codi', name:'Codi the Code Cat', emoji:'💻', niaVoice:false, role:'Builder & systems designer', archetype:'Tactical Thinking', structureClass:'quadruped', energyLevel:'Medium — focused, systems-oriented', palette:[{hex:'#FF8A00',label:'Hero orange (body)'},{hex:'#CC5500',label:'Deep orange (shading)'},{hex:'#2BD4C8',label:'Teal glow'},{hex:'#74F8FF',label:'Cyan highlight'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:'Build a system', coreQuestion:'How does this system work, and how can I make it work better?', restrictedBehaviors:['Evaluating ethics/accuracy','Combat poses','Chaotic energy'], characterBlock:`CHARACTER — Codi the Code Cat:\n- Hero orange body (#FF8A00) with deeper orange shading and tiger stripes (#CC5500)\n- Teal glow accents (#2BD4C8) and cyan highlights (#74F8FF)\n- All outlines: deep navy #001858 (never black)\n- Signature prop: navy tablet displaying </> code symbol`, icons:{tier1:[{id:'codi-paw',name:'Paw print',concept:'Character identity',needsRegen:false,circleColor:'#FF8A00',symbolDesc:'A simple cat paw print with rounded toe beans'},{id:'codi-star',name:'Star / spark',concept:'Character energy',needsRegen:false,circleColor:'#FF8A00',symbolDesc:'A bold 4-pointed star with motion lines'}],tier2:[{id:'codi-tablet-1',name:'Tablet (paw)',concept:'Build a system',needsRegen:false,circleColor:NAVY,symbolDesc:'A tablet with a glowing screen showing a paw print symbol'},{id:'codi-tablet-2',name:'Tablet (code)',concept:'Write code',needsRegen:false,circleColor:NAVY,symbolDesc:'A tablet with a glowing screen showing </> code brackets'},{id:'codi-compass',name:'Compass / map',concept:'Plan before building',needsRegen:false,circleColor:'#FF8A00',symbolDesc:'A compass rose or folded map'},{id:'codi-loop',name:'Loop arrow',concept:'Repeat / loop logic',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A circular loop arrow like a refresh symbol'},{id:'codi-gear',name:'Gear / cog',concept:'How systems work',needsRegen:false,circleColor:'#FF8A00',symbolDesc:'A single bold gear/cog shape'}]}},
+  { id:'cy', name:'Cy the Cyber Cat', emoji:'🛡️', niaVoice:false, role:'Digital responsibility guide', archetype:'Ethical Guidance', structureClass:'quadruped', energyLevel:'Low-medium — focused, calm authority', palette:[{hex:'#2BD4C8',label:'Teal (cyber clarity)'},{hex:'#D4B483',label:'Warm beige fur'},{hex:'#6B4226',label:'Deep brown (Siamese)'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:'Make ethical/safe choices', coreQuestion:'Is it safe, fair, and responsible to use this?', restrictedBehaviors:['Fear-based visuals','Panic energy','Alarmist framing','Threatening expressions'], characterBlock:`CHARACTER — Cy the Cyber Cat:\n- Teal primary (#2BD4C8) with warm beige (#D4B483) and deep brown Siamese points (#6B4226)\n- All outlines: deep navy #001858 (never black)\n- Calm authority — trustworthy, clear, composed`, icons:{tier1:[],tier2:[{id:'cy-brain-shield',name:'Brain (shield)',concept:'Think before you act',needsRegen:false,circleColor:NAVY,symbolDesc:'A circuit-pattern brain inside a shield outline'},{id:'cy-brain-plain',name:'Brain (plain)',concept:'Critical thinking',needsRegen:false,circleColor:'#D4B483',symbolDesc:'A circuit-pattern brain shape, no shield'},{id:'cy-check-shield',name:'Check + shield',concept:'Safe and approved',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A checkmark inside a shield'},{id:'cy-check-circle',name:'Check circle',concept:'Verified / confirmed',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A bold checkmark inside a circle'},{id:'cy-eye-shield',name:'Eye + shield',concept:'Watch and protect',needsRegen:false,circleColor:NAVY,symbolDesc:'An eye symbol inside a shield'},{id:'cy-eye-plain',name:'Eye (plain)',concept:'Stay alert / observe',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A simple bold eye'},{id:'cy-lock-shield',name:'Lock + shield',concept:'Protected / secure',needsRegen:false,circleColor:NAVY,symbolDesc:'A padlock inside a shield with a small sparkle'},{id:'cy-lock-plain',name:'Lock (plain)',concept:'Keep private',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A simple padlock'}]}},
+  { id:'patch', name:'Patch the Robot', emoji:'🔧', niaVoice:false, role:'Repair & refinement specialist', archetype:'Emotional Support', structureClass:'robot', energyLevel:'Medium-low — stable, calm, persistent', palette:[{hex:'#2EC4D6',label:'Hero teal (body)'},{hex:'#1A8FAD',label:'Deep teal (shading)'},{hex:'#FFA729',label:'Accent orange (core button)'},{hex:'#00E5FF',label:'Cyan (eye lights)'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:"Fix what's broken", coreQuestion:'What can we fix to make this work again?', restrictedBehaviors:['Emotional panic','Aggressive action poses','Chaotic motion','Destructive energy'], characterBlock:`CHARACTER — Patch the Robot:\n- Hero teal body (#2EC4D6) with deep teal shading panels (#1A8FAD)\n- Signature orange core button (#FFA729) and cyan eye lights (#00E5FF)\n- All outlines: deep navy #001858 (never black)\n- Rounded robot proportions — calm, supportive, stable`, icons:{tier1:[],tier2:[{id:'patch-bolt-1',name:'Bolt / screw (v1)',concept:'Fix the error',needsRegen:false,circleColor:NAVY,symbolDesc:'A single large bolt or screw, angled, flat style'},{id:'patch-bolt-2',name:'Bolt / screw (v2)',concept:'Make it work',needsRegen:false,circleColor:'#2EC4D6',symbolDesc:'A bold screw with a small sparkle'},{id:'patch-button-1',name:'Core button (v1)',concept:"Patch's power core",needsRegen:false,circleColor:NAVY,symbolDesc:"Patch's signature orange button centered on navy"},{id:'patch-button-2',name:'Core button (v2)',concept:'Activate repair',needsRegen:false,circleColor:'#2EC4D6',symbolDesc:"Patch's signature orange button on teal background"},{id:'patch-gear',name:'Gear / cog',concept:'Adjust the system',needsRegen:false,circleColor:'#2EC4D6',symbolDesc:'A single gear/cog with a teal center highlight'},{id:'patch-wrench-1',name:'Wrench (v1)',concept:'Repair tool',needsRegen:false,circleColor:NAVY,symbolDesc:'A bold wrench, angled diagonally, on deep navy'},{id:'patch-wrench-2',name:'Wrench (v2)',concept:'Debug / fix it',needsRegen:false,circleColor:'#2EC4D6',symbolDesc:'A wrench with a small sparkle on teal background'},{id:'patch-wrench-3',name:'Wrench (v3)',concept:'Keep trying',needsRegen:false,circleColor:NAVY,symbolDesc:'A wrench with a small circular loop arrow beside it'}]}},
+  { id:'sketch-sparrow', name:'Sketch Sparrow', emoji:'🎨', niaVoice:false, role:'Creative communicator & idea translator', archetype:'Creative Expression', structureClass:'bird', energyLevel:'High — expressive, light/bouncy', palette:[{hex:'#4A90D9',label:'Two-tone blue (body)'},{hex:'#74B9FF',label:'Accent blue'},{hex:'#9B59B6',label:'Purple accent'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:'Express ideas clearly', coreQuestion:'How can I show or explain this idea clearly?', restrictedBehaviors:['Reckless chaos','Hyper-detailed rendering','Aggressive motion','Correctness judgment'], characterBlock:`CHARACTER — Sketch Sparrow:\n- Two-tone blue body (#4A90D9) with brighter accent blue (#74B9FF) and purple accents (#9B59B6)\n- All outlines: deep navy #001858 (never black)\n- Creative, expressive, light bird energy`, icons:{tier1:[],tier2:[{id:'sparrow-feather',name:'Feather quill',concept:'Express your idea',needsRegen:false,circleColor:'#9B59B6',symbolDesc:'A single elegant feather quill, angled diagonally'},{id:'sparrow-palette',name:'Mini palette',concept:'Choose how to show it',needsRegen:false,circleColor:'#74B9FF',symbolDesc:"A small artist's palette with 3 color dots"},{id:'sparrow-speech',name:'Speech bubble',concept:'Share your thinking',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A rounded speech bubble with three dots inside'},{id:'sparrow-notebook',name:'Notebook',concept:'Draft your ideas',needsRegen:false,circleColor:'#9B59B6',symbolDesc:'A small spiral notebook with a few ruled lines'},{id:'sparrow-splat',name:'Ink splat',concept:'Creative exploration',needsRegen:false,circleColor:'#9B59B6',symbolDesc:'A loose organic splat shape like an ink drop'}]}},
+  { id:'pixel-pup', name:'Pixel Pup', emoji:'🐾', niaVoice:false, role:'Pattern scout & team energizer', archetype:'Emotional Support', structureClass:'quadruped', energyLevel:'Medium-high — cheerful, active, collaborative', palette:[{hex:'#4A2C0A',label:'Deep chocolate brown (body)'},{hex:'#2BD4C8',label:'Teal highlights & helmet stripe'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:'Recognize patterns & persist', coreQuestion:'Do you notice the pattern — can we try again together?', restrictedBehaviors:['Deep analysis','Deciding outcomes','Frantic energy'], characterBlock:`CHARACTER — Pixel Pup:\n- Deep chocolate brown body (#4A2C0A) with teal highlights and helmet stripe (#2BD4C8)\n- All outlines: deep navy #001858 (never black)\n- Enthusiastic, team-oriented dog energy`, icons:{tier1:[],tier2:[{id:'pup-helmet',name:'Safety helmet',concept:'Try it safely',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A small hard hat / safety helmet, bold and centered'},{id:'pup-paw-loop',name:'Paw loop',concept:'Try again / loop',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A paw print with a circular loop arrow around it'},{id:'pup-paw-print',name:'Paw print',concept:'Follow the pattern',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A single bold paw print'},{id:'pup-spark',name:'Spark / scent trail',concept:'You found something',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'Two small swirl lines like a scent trail with a sparkle'}]}},
+  { id:'design-dog', name:'Design Dog', emoji:'🛠️', niaVoice:false, role:'Designer & iteration leader', archetype:'Creative Expression', structureClass:'quadruped', energyLevel:'Medium-high — welcoming, open/creative', palette:[{hex:'#ED1C18',label:'Hero red (body)'},{hex:'#DD1418',label:'Shadow red (shading)'},{hex:'#F7C318',label:'Belt gold (accent)'},{hex:'#0057B0',label:'Belt buckle cobalt'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:'Iterate & improve (Retry Cycle)', coreQuestion:'What should we make better in the next version?', restrictedBehaviors:['Reckless chaos','Final correctness evaluation','Hyper-detailed rendering'], characterBlock:`CHARACTER — Design Dog:\n- Hero red body (#ED1C18) with shadow red shading (#DD1418)\n- Signature gold belt (#F7C318) with cobalt blue buckle (#0057B0)\n- All outlines: deep navy #001858 (never black)\n- Confident, upbeat, improvement-focused dog`, icons:{tier1:[{id:'dd-splat-1',name:'Splat v1',concept:'Character identity (needs color fix)',needsRegen:true,circleColor:'#F7C318',symbolDesc:'Organic splat/blob. MUST USE: red splat (#ED1C18) on gold (#F7C318), navy outline #001858. NOT generic orange.'},{id:'dd-splat-2',name:'Splat v2',concept:'Character identity (needs color fix)',needsRegen:true,circleColor:'#F7C318',symbolDesc:'Slightly different splat/blob. MUST USE: red splat (#ED1C18) on gold (#F7C318), navy outline #001858.'},{id:'dd-paw',name:'Paw print',concept:'Character identity (needs color fix)',needsRegen:true,circleColor:'#F7C318',symbolDesc:'Bold dog paw print. MUST USE: red paw (#ED1C18) on gold (#F7C318), navy outline #001858. NOT brown.'},{id:'dd-bone',name:'Bone',concept:'Character identity (needs color fix)',needsRegen:true,circleColor:'#F7C318',symbolDesc:'Classic dog bone. MUST USE: red or cream bone on gold (#F7C318), navy outline #001858.'}],tier2:[{id:'dd-try',name:'Launch / Try',concept:'Retry Cycle: Try',needsRegen:false,circleColor:'#0057B0',symbolDesc:'A small rocket or bold forward arrow — "let me try this"'},{id:'dd-check',name:'Magnify / Check',concept:'Retry Cycle: Check',needsRegen:false,circleColor:'#ED1C18',symbolDesc:'A magnifying glass with a small checkmark — "did this work?"'},{id:'dd-improve',name:'Edit mark / Improve',concept:'Retry Cycle: Improve',needsRegen:false,circleColor:'#F7C318',symbolDesc:'A pencil with a small adjustment arrow — "what can I change?"'},{id:'dd-try-again',name:'Cycle arrow / Try Again',concept:'Retry Cycle: Try Again',needsRegen:false,circleColor:'#ED1C18',symbolDesc:'A bold circular loop/refresh arrow — "let me try again"'},{id:'dd-version',name:'Version badge',concept:'Version up',needsRegen:false,circleColor:'#0057B0',symbolDesc:'A small badge showing "v2" or an upward arrow with a number'},{id:'dd-feedback',name:'Feedback bubble',concept:'Receive feedback',needsRegen:false,circleColor:'#F7C318',symbolDesc:'A speech bubble containing a checkmark and edit mark'}]}},
+  { id:'professor-pixel', name:'Professor Pixel', emoji:'✨', niaVoice:false, role:'Mentor & sense-maker', archetype:'Reflection', structureClass:'human', energyLevel:'Low — gentle, minimal movement', palette:[{hex:'#2E74B5',label:'Soft teal blue'},{hex:'#D8F0E8',label:'Pale mint accent'},{hex:NAVY,label:'Deep navy (outline)'}], heroMove:'Reflect & connect meaning', coreQuestion:'Why does this learning matter, and how does it connect?', restrictedBehaviors:['Superhero poses','Combat motion','Exaggerated excitement','Giving solutions directly'], characterBlock:`CHARACTER — Professor Pixel:\n- Soft teal-blue tones (#2E74B5) with pale mint accents (#D8F0E8)\n- All outlines: deep navy #001858 (never black)\n- Simplified human anatomy — calm, wise, warm mentor\n- Restrained movement; grounded posture; gentle gestures`, icons:{tier1:[],tier2:[{id:'pixel-prism',name:'Prism halo',concept:'Connect ideas',needsRegen:false,circleColor:NAVY,symbolDesc:'A triangular prism with a light beam refracting into colors'},{id:'pixel-refraction',name:'Refraction beam',concept:'New perspective',needsRegen:false,circleColor:'#D8F0E8',symbolDesc:'A light beam hitting a prism and splitting'},{id:'pixel-layers',name:'Layered panels',concept:'Build understanding',needsRegen:false,circleColor:'#2E74B5',symbolDesc:'Three stacked translucent square panels, slightly offset'},{id:'pixel-feedback-loop',name:'Feedback loop',concept:'Reflection cycle',needsRegen:false,circleColor:NAVY,symbolDesc:'A circular arrow with an eye symbol inside'},{id:'pixel-connected',name:'Connected nodes',concept:'Ideas are connected',needsRegen:false,circleColor:'#2E74B5',symbolDesc:'Three small circles connected by lines in a simple network'}]}},
+  { id:'nia-bot', name:'Nia-Bot', emoji:'🧭', niaVoice:false, role:'Hero HQ guide-bot / directional support', archetype:'Structural Navigation', structureClass:'robot', energyLevel:'Medium — confident, organized, directed', palette:[{hex:NAVY,label:'Deep navy (body/outline)'},{hex:'#2BD4C8',label:'Teal accent'}], heroMove:'Navigate next steps', coreQuestion:'Where should I go next?', restrictedBehaviors:['Emotional overreaction','Frantic movement','Chaotic visual energy','Evaluating correctness'], characterBlock:`CHARACTER — Nia-Bot:\n- Deep navy body (#001858) with teal accent details (#2BD4C8)\n- All outlines: deep navy #001858 (never black)\n- Rounded robot — "tool created to help," screen-based face`, icons:{tier1:[],tier2:[{id:'niabot-arrow',name:'Direction arrow',concept:'Go this way next',needsRegen:false,circleColor:NAVY,symbolDesc:'A bold right-pointing arrow, centered'},{id:'niabot-compass',name:'Compass',concept:'Find your direction',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A simple compass rose with a prominent north needle'},{id:'niabot-map',name:'Map pin',concept:'You are here',needsRegen:false,circleColor:NAVY,symbolDesc:'A map location pin/teardrop shape'}]}},
+  { id:'asa', name:'Asa', emoji:'🌀', niaVoice:false, role:'AI learning partner (non-hero / special)', archetype:'AI Learning Partner', structureClass:'abstract', energyLevel:'Medium — curious, experimental, learning-oriented', palette:[{hex:'#7F77DD',label:'Purple-mid (primary)'},{hex:'#5DCAA5',label:'Teal mid (secondary)'},{hex:NAVY,label:'Deep navy'}], heroMove:'See how AI reasons (imperfectly)', coreQuestion:"Here's how I guessed — what did I miss?", restrictedBehaviors:['Absolute certainty','Omniscient framing','Emotionally manipulative behavior','Humanlike rendering'], characterBlock:`CHARACTER — Asa:\n- Abstract swirling symbol form — NOT humanlike or machinelike\n- Purple-mid (#7F77DD) and teal-mid (#5DCAA5) flowing color identity\n- No standard body structure — fluid, energetic, symbolic\nNOTE: Asa requires the Trust Triangle — never provides final answers independently`, icons:{tier1:[],tier2:[{id:'asa-swirl',name:'Swirl symbol',concept:'AI is pattern-based',needsRegen:false,circleColor:'#7F77DD',symbolDesc:'A flowing double swirl or spiral'},{id:'asa-question',name:'Question mark',concept:'AI is uncertain',needsRegen:false,circleColor:'#5DCAA5',symbolDesc:'A bold question mark with a small sparkle'},{id:'asa-node',name:'Pattern node',concept:'Connected patterns',needsRegen:false,circleColor:'#7F77DD',symbolDesc:'A small node network of 4 connected dots'}]}},
+  { id:'navigator-nia', name:'Navigator Nia', emoji:'📡', niaVoice:true, role:'System architect & voice of Hero HQ', archetype:'Structural Navigation', structureClass:null, energyLevel:'Voice only', palette:[], heroMove:'Direct the mission', coreQuestion:'What is the mission, and what do we need to do next?', restrictedBehaviors:['Visual rendering (voice-only)'], characterBlock:null, icons:{tier1:[],tier2:[]} }
+];
+
+let selected=null, selectedPose=null, selectedIcon=null, selectedBubbleType=null, selectedBubbleDir=null, activeTab='character';
+let filtered=[...COMPANIONS];
+
+function filterChars(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const cls=document.getElementById('filterClass').value;
+  const arch=document.getElementById('filterArchetype').value;
+  filtered=COMPANIONS.filter(c=>(!q||c.name.toLowerCase().includes(q)||c.role.toLowerCase().includes(q))&&(!cls||c.structureClass===cls)&&(!arch||c.archetype===arch));
+  renderList();
+}
+
+function renderList(){
+  const list=document.getElementById('charList');
+  if(!filtered.length){list.innerHTML='<div style="font-size:12px;color:var(--text3);padding:.75rem 0;">No companions match.</div>';return;}
+  list.innerHTML=filtered.map(c=>{
+    const needsRegen=c.icons.tier1.some(i=>i.needsRegen);
+    const badge=needsRegen?' <span style="font-size:9px;background:var(--red-bg);color:var(--red-text);padding:1px 4px;border-radius:8px;font-weight:700;">fix</span>':'';
+    return `<div class="char-card ${selected&&selected.id===c.id?'active':''}" onclick="selectChar('${c.id}')">
+      <div class="char-name">${c.emoji} ${c.name}${badge}</div>
+      <div class="char-tag">${c.niaVoice?'Voice only':`T1:${c.icons.tier1.length} · T2:${c.icons.tier2.length} · 3 bubble types`}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectChar(id){
+  selected=COMPANIONS.find(c=>c.id===id);
+  selectedPose=null;selectedIcon=null;selectedBubbleType=null;selectedBubbleDir=null;activeTab='character';
+  renderList();renderDetail();
+}
+
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active',c.dataset.tab===tab));
+}
+
+function selectPose(id){
+  selectedPose=id;
+  document.querySelectorAll('.pose-btn').forEach(b=>b.classList.toggle('active',b.dataset.pose===id));
+  renderCharPrompt();
+}
+
+function selectIcon(id){
+  selectedIcon=id;
+  document.querySelectorAll('.icon-btn').forEach(b=>b.classList.toggle('active',b.dataset.icon===id));
+  renderIconPrompt();
+}
+
+function selectBubbleType(id){
+  selectedBubbleType=id;
+  document.querySelectorAll('.bubble-preview-item').forEach(b=>b.classList.toggle('active',b.dataset.bubble===id));
+  const dirRow=document.getElementById('dirRow');
+  if(dirRow)dirRow.style.display=id==='callout'?'none':'';
+  renderBubblePrompt();
+}
+
+function selectBubbleDir(dir){
+  selectedBubbleDir=dir;
+  document.querySelectorAll('.dir-btn').forEach(b=>b.classList.toggle('active',b.dataset.dir===dir));
+  renderBubblePrompt();
+}
+
+function buildCharPrompt(char,poseId){
+  const pose=POSES.find(p=>p.id===poseId);
+  return ['Create a simple educational mascot illustration in the Byte-Sized Heroes Hero Companion style.','',UNIVERSAL_STYLE,'',STRUCTURE_RULES[char.structureClass],'',pose.desc,'',char.characterBlock,'',`EMOTIONAL ENERGY: ${char.energyLevel}`,'',`FORBIDDEN DRIFT — do NOT render: ${char.restrictedBehaviors.join(', ')}`,'','OUTPUT: Clean vector-style educational mascot. Square 1:1 format. Plain white background. Suitable for classroom slides, worksheets, PDFs, badges.'].join('\n');
+}
+
+function buildIconPrompt(char,iconId){
+  const allIcons=[...char.icons.tier1,...char.icons.tier2];
+  const icon=allIcons.find(i=>i.id===iconId);
+  if(!icon)return '';
+  const tier=char.icons.tier1.find(i=>i.id===iconId)?'Tier 1 — Identity/Decorative':'Tier 2 — Concept/Instructional';
+  const regenNote=icon.needsRegen?'\nCOLOR CORRECTION REQUIRED: Previous version used incorrect colors. This regeneration MUST use the confirmed palette below.\n':'';
+  return ['Create a standalone educational icon badge in the Byte-Sized Heroes icon style.',regenNote,ICON_UNIVERSAL,'',`ICON: ${icon.name}`,`TIER: ${tier}`,`CONCEPT: ${icon.concept}`,`SYMBOL: ${icon.symbolDesc}`,'',`CIRCLE BACKGROUND COLOR: ${icon.circleColor}`,'CHARACTER PALETTE FOR REFERENCE:',char.palette.map(p=>`- ${p.label}: ${p.hex}`).join('\n'),'',`OUTLINE COLOR: #001858 deep navy (never black)`,'',`FORBIDDEN: No character. No text. No gradients. No shadows. No black (#000000). No off-palette colors.`,'','OUTPUT: Clean flat vector badge. Transparent or white background outside circle. Square 1:1 format. Suitable for task cards, worksheets, callout boxes, badges, slide decals.'].join('\n');
+}
+
+function buildBubblePrompt(char,bubbleTypeId,dir){
+  const bt=BUBBLE_TYPES.find(b=>b.id===bubbleTypeId);
+  if(!bt)return '';
+  const isCallout=bubbleTypeId==='callout';
+  if(isCallout){
+    return ['Create a standalone callout panel in the Byte-Sized Heroes style. NO character illustration — icon only.','',`OUTLINE LOCK: All outlines #001858 deep navy (never black #000000)`,'',bt.desc(dir),'',`CHARACTER REFERENCE — ${char.name}:`,`Use this character's icon/symbol in the left circle area.`,char.palette.map(p=>`- ${p.label}: ${p.hex}`).join('\n'),'',`FORBIDDEN: No full character body. No text. No gradients. No black outlines. Keep the text area completely empty.`,'','OUTPUT: Wide landscape rectangle callout panel. White or transparent background. Suitable for slide layouts and worksheet callout boxes.'].join('\n');
+  }
+  const pose=POSES.find(p=>p.id===(dir==='left'?'explaining_right':'explaining_left'));
+  const dirLabel=dir==='left'?'Character on RIGHT, bubble on LEFT':'Character on LEFT, bubble on RIGHT';
+  return [`Create an educational mascot illustration with speech bubble in the Byte-Sized Heroes style.`,'',`OUTLINE LOCK — READ FIRST: All outlines #001858 deep navy. Never black #000000.`,'',DALLE_NOTES,'',`COMPOSITION: ${dirLabel}`,`- Character anchored at bottom ${dir==='left'?'right':'left'} of frame`,`- Bubble fills upper ${dir==='left'?'left to center':'right to center'} of frame`,`- Leave generous margin — neither element should touch the edge`,`- Square 1:1 format`,'',bt.desc(dir),'',UNIVERSAL_STYLE,'',STRUCTURE_RULES[char.structureClass],'',pose.desc,'',char.characterBlock,'',`EMOTIONAL ENERGY: ${char.energyLevel}`,'',`FORBIDDEN: ${char.restrictedBehaviors.join(', ')}. Black outlines. Text inside the bubble. Patterns inside the bubble. Character cropped or cut off.`,'','OUTPUT: Clean vector-style mascot + empty bubble composition. Square 1:1 format. White background. Ready for text overlay in Canva or Google Slides.'].join('\n');
+}
+
+function renderCharPrompt(){
+  const box=document.getElementById('charPromptBox');
+  const btn=document.getElementById('charCopyBtn');
+  if(!box)return;
+  if(selected&&selectedPose){box.textContent=buildCharPrompt(selected,selectedPose);box.className='prompt-box';btn.style.display='flex';}
+  else{box.textContent='Select a pose above to generate the prompt.';box.className='prompt-box empty';btn.style.display='none';}
+}
+
+function renderIconPrompt(){
+  const box=document.getElementById('iconPromptBox');
+  const btn=document.getElementById('iconCopyBtn');
+  if(!box)return;
+  if(selected&&selectedIcon){box.textContent=buildIconPrompt(selected,selectedIcon);box.className='prompt-box';btn.style.display='flex';}
+  else{box.textContent='Select an icon above to generate the prompt.';box.className='prompt-box empty';btn.style.display='none';}
+}
+
+function renderBubblePrompt(){
+  const box=document.getElementById('bubblePromptBox');
+  const btn=document.getElementById('bubbleCopyBtn');
+  if(!box)return;
+  const isCallout=selectedBubbleType==='callout';
+  const ready=selected&&selectedBubbleType&&(isCallout||selectedBubbleDir);
+  if(ready){box.textContent=buildBubblePrompt(selected,selectedBubbleType,selectedBubbleDir);box.className='prompt-box';btn.style.display='flex';}
+  else{box.textContent=`Select a bubble type${selectedBubbleType&&!isCallout?' and direction':''} to generate the prompt.`;box.className='prompt-box empty';btn.style.display='none';}
+}
+
+function copyPrompt(type){
+  const texts={char:()=>selected&&selectedPose?buildCharPrompt(selected,selectedPose):'',icon:()=>selected&&selectedIcon?buildIconPrompt(selected,selectedIcon):'',bubble:()=>selected&&selectedBubbleType?buildBubblePrompt(selected,selectedBubbleType,selectedBubbleDir):''};
+  const text=texts[type]();
+  if(!text)return;
+  const btnId=`${type}CopyBtn`;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById(btnId);
+    btn.classList.add('copied');btn.innerHTML='<i class="ti ti-check"></i> Copied!';
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML='<i class="ti ti-copy"></i> Copy prompt';},2000);
+  });
+}
+
+function renderDetail(){
+  const panel=document.getElementById('detailPanel');
+  if(!selected){panel.innerHTML=`<div class="empty-state"><span class="empty-icon"><i class="ti ti-users"></i></span><p>Select a Hero Companion to view their spec<br>and generate image prompts</p></div>`;return;}
+  const c=selected;
+  const paletteDots=c.palette.length?c.palette.map(p=>`<div class="palette-row"><div class="dot" style="background:${p.hex};${p.hex===NAVY?'border:1.5px solid var(--teal);':''}"></div><span class="dot-label">${p.label}</span><span class="dot-hex">${p.hex}</span></div>`).join(''):'<span style="font-size:11px;color:var(--text3);">Palette pending</span>';
+  const needsRegen=c.icons.tier1.some(i=>i.needsRegen);
+  const hasT1=c.icons.tier1.length>0,hasT2=c.icons.tier2.length>0;
+
+  const charTab=c.niaVoice?`<div class="nia-note">Navigator Nia is voice-only — no character prompt until her design is established.</div>`:`<div class="pose-picker">${POSES.map(p=>`<button class="pose-btn" data-pose="${p.id}" onclick="selectPose('${p.id}')">${p.label}</button>`).join('')}</div><div class="prompt-box empty" id="charPromptBox">Select a pose above to generate the prompt.</div><button class="copy-btn" id="charCopyBtn" onclick="copyPrompt('char')" style="display:none;"><i class="ti ti-copy"></i> Copy prompt</button>`;
+
+  const iconTab=c.niaVoice?`<div class="nia-note">No icons until Navigator Nia's visual design is established.</div>`:`
+    ${needsRegen?`<div class="regen-note">⚠ Some Tier 1 icons need color correction. Use these prompts to regenerate with Design Dog's confirmed palette.</div>`:''}
+    ${hasT1?`<div class="icon-tier"><span class="tier-label ${needsRegen?'tier-needs-regen':'tier-1-label'}">Tier 1 — Identity${needsRegen?' · needs color fix':''}</span><div class="icon-grid">${c.icons.tier1.map(i=>`<button class="icon-btn" data-icon="${i.id}" onclick="selectIcon('${i.id}')"><span class="icon-name">${i.needsRegen?'⚠ ':''}${i.name}</span><span class="icon-tier-tag">${i.concept}</span></button>`).join('')}</div></div>`:`<div class="icon-tier"><span class="tier-label tier-1-label">Tier 1 — Identity</span><p style="font-size:11px;color:var(--text3);margin-top:3px;">None — went straight to concept icons.</p></div>`}
+    ${hasT2?`<div class="icon-tier"><span class="tier-label tier-2-label">Tier 2 — Concept / Instructional</span><div class="icon-grid">${c.icons.tier2.map(i=>`<button class="icon-btn" data-icon="${i.id}" onclick="selectIcon('${i.id}')"><span class="icon-name">${i.name}</span><span class="icon-tier-tag">${i.concept}</span></button>`).join('')}</div></div>`:''}
+    <div class="prompt-box empty" id="iconPromptBox" style="margin-top:.75rem;">Select an icon above to generate the prompt.</div>
+    <button class="copy-btn" id="iconCopyBtn" onclick="copyPrompt('icon')" style="display:none;"><i class="ti ti-copy"></i> Copy prompt</button>`;
+
+  const bubbleTab=c.niaVoice?`<div class="nia-note">No bubble prompts for Navigator Nia.</div>`:`
+    <div class="info-note">Prompts tuned for <strong>DALL-E / ChatGPT & Copilot</strong>. Bubble fill: <code>#EBF4FF</code>. Overlay text in Canva or Google Slides.</div>
+    <div class="sub-label">1. Choose bubble type</div>
+    <div class="bubble-preview">${BUBBLE_TYPES.map(bt=>`<div class="bubble-preview-item" data-bubble="${bt.id}" onclick="selectBubbleType('${bt.id}')">${bt.svgPreview}<div class="bubble-label">${bt.label}</div></div>`).join('')}</div>
+    <div id="dirRow">
+      <div class="sub-label">2. Choose direction</div>
+      <div class="dir-row">
+        <button class="dir-btn" data-dir="left" onclick="selectBubbleDir('left')">← Bubble left, character right</button>
+        <button class="dir-btn" data-dir="right" onclick="selectBubbleDir('right')">Character left, bubble right →</button>
+      </div>
+    </div>
+    <div class="prompt-box empty" id="bubblePromptBox">Select a bubble type to generate the prompt.</div>
+    <button class="copy-btn" id="bubbleCopyBtn" onclick="copyPrompt('bubble')" style="display:none;"><i class="ti ti-copy"></i> Copy prompt</button>`;
+
+  panel.innerHTML=`
+    <div class="detail-header">
+      <div class="char-avatar" style="background:${c.palette[0]?.hex||'#e5e7eb'};color:#fff;">${c.emoji}</div>
+      <div><div class="detail-name">${c.name}</div><div class="detail-role">${c.role}</div><span class="archetype-pill">${c.archetype}</span></div>
+    </div>
+    <div class="navy-lock"><i class="ti ti-lock" style="font-size:10px;"></i> Outline lock: #001858 deep navy</div>
+    <div class="spec-grid">
+      <div class="spec-block"><div class="spec-label">Structure class</div><div class="spec-value">${c.structureClass?c.structureClass.charAt(0).toUpperCase()+c.structureClass.slice(1):'Voice only'}</div></div>
+      <div class="spec-block"><div class="spec-label">Energy level</div><div class="spec-value">${c.energyLevel}</div></div>
+      <div class="spec-block"><div class="spec-label">Hero move</div><div class="spec-value">${c.heroMove}</div></div>
+      <div class="spec-block"><div class="spec-label">Core question</div><div class="spec-value" style="font-size:10px;">${c.coreQuestion}</div></div>
+    </div>
+    <div class="section-title">Color palette</div>
+    <div style="margin-bottom:.5rem;">${paletteDots}</div>
+    <div class="section-title">Restricted behaviors</div>
+    <div class="tags" style="margin-bottom:.25rem;">${c.restrictedBehaviors.map(r=>`<span class="tag danger">${r}</span>`).join('')}</div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="character" onclick="switchTab('character')">🎭 Character</button>
+      <button class="tab-btn" data-tab="icons" onclick="switchTab('icons')">🏅 Icons</button>
+      <button class="tab-btn" data-tab="bubbles" onclick="switchTab('bubbles')">💬 Bubbles</button>
+    </div>
+    <div class="tab-content active" data-tab="character">${charTab}</div>
+    <div class="tab-content" data-tab="icons">${iconTab}</div>
+    <div class="tab-content" data-tab="bubbles">${bubbleTab}</div>`;
+}
+
+renderList();
+</script>
+</body>
+</html>
