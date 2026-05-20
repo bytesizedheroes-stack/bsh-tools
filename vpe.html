@@ -486,15 +486,23 @@ ${fill==='filled'&&icon?`- BUBBLE CONTENT: The interior contains a single illust
 :`- BUBBLE INTERIOR: completely empty — no text, no patterns, no icons — blank for text overlay`}`},
   {id:'callout',label:'Callout panel',sub:'Icon + text area (Asa format)',
    svgPreview:`<svg width="52" height="28" viewBox="0 0 52 28" fill="none"><rect x="1" y="1" width="50" height="26" rx="6" fill="#EBF4FF" stroke="#001858" stroke-width="1.5"/><circle cx="13" cy="14" r="7" fill="#001858"/><rect x="24" y="7" width="22" height="3" rx="1.5" fill="#001858" opacity="0.3"/><rect x="24" y="13" width="18" height="2" rx="1" fill="#001858" opacity="0.2"/><rect x="24" y="18" width="20" height="2" rx="1" fill="#001858" opacity="0.2"/></svg>`,
-   desc:()=>`CALLOUT PANEL STYLE:
-- Wide horizontal rounded rectangle — landscape orientation
-- Panel fill: #EBF4FF (soft light blue)
-- Panel outline: #001858 deep navy
-- LEFT SIDE: circular icon area (~25% of panel width, navy circle) — character icon/symbol centered inside
-- RIGHT SIDE: text area — completely empty for text overlay
-- A thin vertical line or inset separates icon area from text area
+   desc:(char)=>`CALLOUT PANEL STYLE (locked standards):
+- Wide horizontal rounded rectangle — landscape orientation, roughly 3:1 width-to-height ratio
+- Panel fill: #EBF4FF (soft pale blue — NOT pure white, NOT bright blue)
+- Panel outer stroke: #001858 deep navy, thin and clean (same weight as character outlines)
+- LEFT SIDE: circular icon area (~25–30% of panel width)
+  - Circle background: ${char?char.calloutCircleColor||'#001858':'[character accent color]'} — character's dominant accent color
+  - Circle contains: character HEAD ONLY — cropped at collar/neck line, no full body
+  - Head fills the circle comfortably with slight breathing room at edges
+  - White eye highlights required on the character icon
+  - No extra embellishments inside the circle (no freckles, blush, sparkles, background patterns)
+  - Character must be recognizable and readable at small sizes
+- SEPARATOR: single thin vertical navy line between icon area and text area — minimal, not heavy
+- RIGHT SIDE: text area — completely empty, clean pale blue — ready for text overlay in Canva
+  - No text, no patterns, no decorations in the text zone
 - No tail — this is a label/caption format, not a speech bubble
-- Standalone panel — no full character illustration needed`}
+- Standalone panel — no full character body illustration needed
+FORBIDDEN: Full character body in the circle. Text in the text zone. Extra decorative elements. Background patterns. Heavy divider lines.`}
 ];
 
 const DALLE_NOTES=`DALL-E / COPILOT GENERATION NOTES:
@@ -506,7 +514,7 @@ const DALLE_NOTES=`DALL-E / COPILOT GENERATION NOTES:
 - Do NOT add gradients or decorative patterns inside the bubble`;
 
 const COMPANIONS=[
-  {id:'logic-lynx',name:'Logic Lynx',emoji:'🔍',niaVoice:false,structureClass:'quadruped',archetype:'Tactical Thinking',
+  {id:'logic-lynx',calloutCircleColor:'#2BD4C8',name:'Logic Lynx',emoji:'🔍',niaVoice:false,structureClass:'quadruped',archetype:'Tactical Thinking',
    role:'Analyst & clarity thinker',energyLevel:'Medium — analytical, controlled',
    referenceStatus:'approved',
    palette:[{hex:'#6B7280',label:'Lynx gray (body)'},{hex:'#2BD4C8',label:'Teal accent'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -524,7 +532,7 @@ const COMPANIONS=[
     tier2:[{id:'brain-spark',name:'Brain spark',concept:'Activate reasoning',needsRegen:false,circleColor:'#6B7280',symbolDesc:'A simple rounded brain shape with a small lightning bolt spark beside it'},{id:'puzzle-piece',name:'Puzzle piece',concept:'Break into parts',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A single puzzle piece, bold and centered'},{id:'notebook',name:'Notebook',concept:'Document reasoning',needsRegen:false,circleColor:'#6B7280',symbolDesc:'A small spiral notebook with ruled lines'},{id:'step-arrows',name:'Step arrows',concept:'Step-by-step thinking',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'Three right-pointing arrows stacked vertically, each slightly offset'}]},
    props:[{id:'magnifying-prop',name:'Magnifying glass',concept:'Analysis in action',circleColor:'#2BD4C8',symbolDesc:'Logic Lynx holding a magnifying glass in one raised paw, examining something — paw clearly gripping the handle'}]},
 
-  {id:'data-duck',name:'Data Duck',emoji:'🦆',niaVoice:false,structureClass:'bird',archetype:'Tactical Thinking',
+  {id:'data-duck',calloutCircleColor:'#FFD220',name:'Data Duck',emoji:'🦆',niaVoice:false,structureClass:'bird',archetype:'Tactical Thinking',
    role:'Evidence & accuracy specialist',energyLevel:'Medium — curious, observational',
    referenceStatus:'approved',
    palette:[{hex:'#FFD220',label:'Hybrid yellow (body)'},{hex:'#FFA500',label:'Orange-gold (shading/feet/beak)'},{hex:'#2BD4C8',label:'Teal data glow'},{hex:'#74F8FF',label:'Highlight teal'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -542,7 +550,7 @@ const COMPANIONS=[
     tier2:[{id:'quack-badge',name:'QUACK badge',concept:'Accuracy check signal',needsRegen:false,circleColor:'#FFD220',symbolDesc:'A bold speech bubble containing the word QUACK in large friendly letters with a small data/signal symbol below it'},{id:'speech-bubble-dd',name:'Speech bubble',concept:'Check understanding',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A rounded speech bubble with three small dots inside'},{id:'duck-orb',name:'Data orb',concept:'Information source',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A glowing crystal orb or data sphere with a small star sparkle'},{id:'duck-blocks',name:'Data blocks',concept:'Structured evidence',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'Three small stacked cubes or data blocks arranged in a pyramid'},{id:'duck-feather',name:'Feather / leaf',concept:'Record & document',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A single feather or leaf with fine detail lines suggesting a quill'}]},
    props:[{id:'orb-prop',name:'Data orb',concept:'Holding evidence',circleColor:'#2BD4C8',symbolDesc:'Data Duck holding a glowing teal data orb in one wing — wing clearly cradling the orb, orb glowing softly'},{id:'quack-prop',name:'QUACK badge',concept:'Presenting the check',circleColor:'#FFD220',symbolDesc:'Data Duck holding up a QUACK speech bubble badge in one wing — wing raised displaying the badge'}]},
 
-  {id:'codi',name:'Codi the Code Cat',emoji:'💻',niaVoice:false,structureClass:'quadruped',archetype:'Tactical Thinking',
+  {id:'codi',calloutCircleColor:'#FF8A00',name:'Codi the Code Cat',emoji:'💻',niaVoice:false,structureClass:'quadruped',archetype:'Tactical Thinking',
    role:'Builder & systems designer',energyLevel:'Medium — focused, systems-oriented',
    referenceStatus:'approved',
    palette:[{hex:'#FF8A00',label:'Hero orange (body)'},{hex:'#CC5500',label:'Deep orange (shading/stripes)'},{hex:'#2BD4C8',label:'Teal glow'},{hex:'#74F8FF',label:'Cyan highlight'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -564,7 +572,7 @@ PROP LOCK (Codi — CRITICAL): The tablet is ALWAYS held in front of the body li
     tier2:[{id:'codi-tablet-1',name:'Tablet (paw)',concept:'Build a system',needsRegen:false,circleColor:NAVY,symbolDesc:"A tablet device with a glowing screen showing a paw print symbol"},{id:'codi-tablet-2',name:'Tablet (code)',concept:'Write code',needsRegen:false,circleColor:NAVY,symbolDesc:'A tablet device with a glowing screen showing </> code brackets'},{id:'codi-compass',name:'Compass / map',concept:'Plan before building',needsRegen:false,circleColor:'#FF8A00',symbolDesc:'A compass rose or folded map'},{id:'codi-loop',name:'Loop arrow',concept:'Repeat / loop logic',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A circular loop arrow like a refresh symbol'},{id:'codi-gear',name:'Gear / cog',concept:'How systems work',needsRegen:false,circleColor:'#FF8A00',symbolDesc:'A single bold gear/cog shape'}]},
    props:[{id:'tablet-prop',name:'Code tablet',concept:'Building in action',circleColor:NAVY,symbolDesc:'Codi holding a navy tablet in both paws — paws clearly gripping the sides of the tablet, screen showing </> code symbol, torso visible behind/beside the tablet'},{id:'map-prop',name:'Map / compass',concept:'Planning a system',circleColor:'#FF8A00',symbolDesc:'Codi holding an unfolded map or compass in one raised paw — paw clearly gripping the object'}]},
 
-  {id:'cy',name:'Cy the Cyber Cat',emoji:'🛡️',niaVoice:false,structureClass:'quadruped',archetype:'Ethical Guidance',
+  {id:'cy',calloutCircleColor:'#2BD4C8',name:'Cy the Cyber Cat',emoji:'🛡️',niaVoice:false,structureClass:'quadruped',archetype:'Ethical Guidance',
    role:'Digital responsibility guide',energyLevel:'Low-medium — focused, calm authority',
    referenceStatus:'approved',
    palette:[{hex:'#2BD4C8',label:'Teal hoodie'},{hex:'#D4B483',label:'Warm beige fur'},{hex:'#6B4226',label:'Deep brown (Siamese points)'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -582,7 +590,7 @@ PROP LOCK (Codi — CRITICAL): The tablet is ALWAYS held in front of the body li
     tier2:[{id:'cy-brain-shield',name:'Brain (shield)',concept:'Think before you act',needsRegen:false,circleColor:NAVY,symbolDesc:'A circuit-pattern brain shape inside a shield outline'},{id:'cy-brain-plain',name:'Brain (plain)',concept:'Critical thinking',needsRegen:false,circleColor:'#D4B483',symbolDesc:'A circuit-pattern brain shape, no shield'},{id:'cy-check-shield',name:'Check + shield',concept:'Safe and approved',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A checkmark inside a shield'},{id:'cy-check-circle',name:'Check circle',concept:'Verified / confirmed',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A bold checkmark inside a circle'},{id:'cy-eye-shield',name:'Eye + shield',concept:'Watch and protect',needsRegen:false,circleColor:NAVY,symbolDesc:'An eye symbol inside a shield'},{id:'cy-eye-plain',name:'Eye (plain)',concept:'Stay alert',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A simple bold eye'},{id:'cy-lock-shield',name:'Lock + shield',concept:'Protected / secure',needsRegen:false,circleColor:NAVY,symbolDesc:'A padlock inside a shield with a small sparkle'},{id:'cy-lock-plain',name:'Lock (plain)',concept:'Keep private',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A simple padlock'}]},
    props:[{id:'shield-prop',name:'Shield badge',concept:'Presenting the check',circleColor:'#2BD4C8',symbolDesc:'Cy holding up a teal shield badge in one raised paw — paw clearly gripping the shield, calm confident expression'}]},
 
-  {id:'patch',name:'Patch the Robot',emoji:'🔧',niaVoice:false,structureClass:'robot',archetype:'Emotional Support',
+  {id:'patch',calloutCircleColor:'#2EC4D6',name:'Patch the Robot',emoji:'🔧',niaVoice:false,structureClass:'robot',archetype:'Emotional Support',
    role:'Repair & refinement specialist',energyLevel:'Medium-low — stable, calm, persistent',
    referenceStatus:'approved',
    palette:[{hex:'#2EC4D6',label:'Hero teal (body)'},{hex:'#1A8FAD',label:'Deep teal (shading panels)'},{hex:'#FFA729',label:'Accent orange (core button)'},{hex:'#00E5FF',label:'Cyan (eye lights/antenna)'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -601,7 +609,7 @@ PROP LOCK (Patch): Wrench/tools are always held in one hand/claw with visible gr
     tier2:[{id:'patch-bolt-1',name:'Bolt / screw (v1)',concept:'Fix the error',needsRegen:false,circleColor:NAVY,symbolDesc:'A single large bolt or screw, angled, flat style'},{id:'patch-bolt-2',name:'Bolt / screw (v2)',concept:'Make it work',needsRegen:false,circleColor:'#2EC4D6',symbolDesc:'A bold screw with a small sparkle'},{id:'patch-button-1',name:'Core button (v1)',concept:"Patch's power core",needsRegen:false,circleColor:NAVY,symbolDesc:"Patch's signature orange button centered on deep navy"},{id:'patch-button-2',name:'Core button (v2)',concept:'Activate repair',needsRegen:false,circleColor:'#2EC4D6',symbolDesc:"Patch's signature orange button on teal background"},{id:'patch-gear',name:'Gear / cog',concept:'Adjust the system',needsRegen:false,circleColor:'#2EC4D6',symbolDesc:'A single gear/cog with a teal center highlight'},{id:'patch-wrench-1',name:'Wrench (v1)',concept:'Repair tool',needsRegen:false,circleColor:NAVY,symbolDesc:'A bold wrench, angled diagonally, on deep navy'},{id:'patch-wrench-2',name:'Wrench (v2)',concept:'Debug / fix it',needsRegen:false,circleColor:'#2EC4D6',symbolDesc:'A wrench with a small sparkle on teal background'},{id:'patch-wrench-3',name:'Wrench (v3)',concept:'Keep trying',needsRegen:false,circleColor:NAVY,symbolDesc:'A wrench with a small circular loop arrow beside it'}]},
    props:[{id:'wrench-prop',name:'Wrench',concept:'Repair in action',circleColor:NAVY,symbolDesc:'Patch holding a wrench in one raised hand — hand clearly gripping the wrench handle, teal body readable behind it'}]},
 
-  {id:'sketch-sparrow',name:'Sketch Sparrow',emoji:'🎨',niaVoice:false,structureClass:'bird',archetype:'Creative Expression',
+  {id:'sketch-sparrow',calloutCircleColor:'#9B59B6',name:'Sketch Sparrow',emoji:'🎨',niaVoice:false,structureClass:'bird',archetype:'Creative Expression',
    role:'Creative communicator & idea translator',energyLevel:'High — expressive, light/bouncy',
    referenceStatus:'approved',
    palette:[{hex:'#4A90D9',label:'Two-tone blue (body)'},{hex:'#74B9FF',label:'Accent blue (highlights)'},{hex:'#9B59B6',label:'Purple accent'},{hex:'#FFC300',label:'Yellow-gold beak/feet'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -618,7 +626,7 @@ PROP LOCK (Patch): Wrench/tools are always held in one hand/claw with visible gr
     tier2:[{id:'sparrow-feather',name:'Feather quill',concept:'Express your idea',needsRegen:false,circleColor:'#9B59B6',symbolDesc:'A single elegant feather quill, angled diagonally'},{id:'sparrow-palette',name:'Mini palette',concept:'Choose how to show it',needsRegen:false,circleColor:'#74B9FF',symbolDesc:"A small artist's palette with 3 color dots"},{id:'sparrow-speech',name:'Speech bubble',concept:'Share your thinking',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A rounded speech bubble with three dots inside'},{id:'sparrow-notebook',name:'Notebook',concept:'Draft your ideas',needsRegen:false,circleColor:'#9B59B6',symbolDesc:'A small spiral notebook with a few ruled lines'},{id:'sparrow-splat',name:'Ink splat',concept:'Creative exploration',needsRegen:false,circleColor:'#9B59B6',symbolDesc:'A loose organic splat shape like an ink drop'}]},
    props:[{id:'quill-prop',name:'Feather quill',concept:'Writing/drawing in action',circleColor:'#9B59B6',symbolDesc:'Sketch Sparrow holding a large elegant feather quill in one wing — wing clearly gripping the quill, ready to write'},{id:'scroll-prop',name:'Scroll',concept:'Presenting ideas',circleColor:'#74B9FF',symbolDesc:'Sketch Sparrow holding an unrolled scroll in both wings — wings clearly holding the scroll open'}]},
 
-  {id:'pixel-pup',name:'Pixel Pup',emoji:'🐾',niaVoice:false,structureClass:'quadruped',archetype:'Emotional Support',
+  {id:'pixel-pup',calloutCircleColor:'#01F3FF',name:'Pixel Pup',emoji:'🐾',niaVoice:false,structureClass:'quadruped',archetype:'Emotional Support',
    role:'Pattern scout & team energizer',energyLevel:'Medium-high — cheerful, active, collaborative',
    referenceStatus:'approved',
    palette:[{hex:'#7F3B18',label:'Rich chocolate brown (body)'},{hex:'#FEC400',label:'Helmet gold'},{hex:'#01F3FF',label:'Teal (emblem/stripe)'},{hex:'#163673',label:'Collar blue'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -639,7 +647,7 @@ POSE NOTES:
     tier2:[{id:'pup-helmet',name:'Safety helmet',concept:'Try it safely',needsRegen:false,circleColor:'#01F3FF',symbolDesc:'A small hard hat / safety helmet with a teal stripe, bold and centered'},{id:'pup-paw-loop',name:'Paw loop',concept:'Try again / loop',needsRegen:false,circleColor:'#01F3FF',symbolDesc:'A paw print with a circular loop arrow around it'},{id:'pup-paw-print',name:'Paw print',concept:'Follow the pattern',needsRegen:false,circleColor:'#01F3FF',symbolDesc:'A single bold paw print'},{id:'pup-spark',name:'Spark / scent trail',concept:'You found something',needsRegen:false,circleColor:'#01F3FF',symbolDesc:'Two small swirl lines like a scent trail with a sparkle'}]},
    props:[{id:'helmet-prop',name:'Safety helmet (held)',concept:'Ready to try',circleColor:'#FEC400',symbolDesc:'Pixel Pup holding a yellow safety helmet in one raised paw — paw clearly gripping the helmet brim'}]},
 
-  {id:'design-dog',name:'Design Dog',emoji:'🛠️',niaVoice:false,structureClass:'quadruped',archetype:'Creative Expression',
+  {id:'design-dog',calloutCircleColor:'#001858',name:'Design Dog',emoji:'🛠️',niaVoice:false,structureClass:'quadruped',archetype:'Creative Expression',
    role:'Designer & iteration leader',energyLevel:'Medium-high — welcoming, open/creative',
    referenceStatus:'body-only',
    palette:[{hex:'#ED1C18',label:'Hero red (body)'},{hex:'#DD1418',label:'Shadow red (shading)'},{hex:'#F7C318',label:'Belt gold (accent)'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -657,7 +665,7 @@ POSE NOTES:
     tier2:[{id:'dd-try',name:'Launch / Try',concept:'Retry Cycle: Try',needsRegen:false,circleColor:'#001858',symbolDesc:'A small rocket or bold forward arrow — "let me try this"'},{id:'dd-check',name:'Magnify / Check',concept:'Retry Cycle: Check',needsRegen:false,circleColor:'#ED1C18',symbolDesc:'A magnifying glass with a small checkmark — "did this work?"'},{id:'dd-improve',name:'Edit / Improve',concept:'Retry Cycle: Improve',needsRegen:false,circleColor:'#F7C318',symbolDesc:'A pencil with a small adjustment arrow — "what can I change?"'},{id:'dd-try-again',name:'Cycle arrow',concept:'Retry Cycle: Try Again',needsRegen:false,circleColor:'#ED1C18',symbolDesc:'A bold circular loop/refresh arrow — "let me try again"'},{id:'dd-version',name:'Version badge',concept:'Version up',needsRegen:false,circleColor:'#001858',symbolDesc:'A small badge showing "v2" or an upward arrow with a number'},{id:'dd-feedback',name:'Feedback bubble',concept:'Receive feedback',needsRegen:false,circleColor:'#F7C318',symbolDesc:'A speech bubble containing a checkmark and edit mark'}]},
    props:[{id:'board-prop',name:'Whiteboard / easel',concept:'Presenting iteration',circleColor:'#F7C318',symbolDesc:'Design Dog standing beside or gesturing toward a small whiteboard/easel — one paw pointing at the board, belt visible'},{id:'pencil-prop',name:'Pencil',concept:'Sketching / designing',circleColor:'#F7C318',symbolDesc:'Design Dog holding a large pencil in one raised paw — paw clearly gripping the pencil, ready to sketch'}]},
 
-  {id:'professor-pixel',name:'Professor Pixel',emoji:'✨',niaVoice:false,structureClass:'human',archetype:'Reflection',
+  {id:'professor-pixel',calloutCircleColor:'#2E74B5',name:'Professor Pixel',emoji:'✨',niaVoice:false,structureClass:'human',archetype:'Reflection',
    role:'Mentor & sense-maker',energyLevel:'Low — gentle, minimal movement',
    referenceStatus:'approved',
    palette:[{hex:'#E8A857',label:'Warm tan skin'},{hex:'#FFFFFF',label:'White lab coat'},{hex:'#2E74B5',label:'Teal undershirt'},{hex:'#D8F0E8',label:'Pale mint accent'},{hex:NAVY,label:'Deep navy (outline)'}],
@@ -687,7 +695,7 @@ FORBIDDEN HOLOGRAM DRIFT: Neon cyberpunk rendering; glitch distortion; aggressiv
     tier2:[{id:'pixel-prism',name:'Prism halo',concept:'Connect ideas',needsRegen:false,circleColor:NAVY,symbolDesc:'A triangular prism with a light beam refracting into colors'},{id:'pixel-refraction',name:'Refraction beam',concept:'New perspective',needsRegen:false,circleColor:'#D8F0E8',symbolDesc:'A light beam hitting a prism and splitting into colors'},{id:'pixel-layers',name:'Layered panels',concept:'Build understanding',needsRegen:false,circleColor:'#2E74B5',symbolDesc:'Three stacked translucent square panels, slightly offset'},{id:'pixel-feedback-loop',name:'Feedback loop',concept:'Reflection cycle',needsRegen:false,circleColor:NAVY,symbolDesc:'A circular arrow with an eye symbol inside'},{id:'pixel-connected',name:'Connected nodes',concept:'Ideas are connected',needsRegen:false,circleColor:'#2E74B5',symbolDesc:'Three small circles connected by lines in a simple network'}]},
    props:[{id:'hologram-prop',name:'Hologram projection',concept:'Remote mentoring',circleColor:'#2E74B5',symbolDesc:'Professor Pixel rendered as a hologram projection — see hologram form spec in Props & Variants tab'},{id:'cube-prop',name:'Glowing concept cube',concept:'Holding an idea',circleColor:'#2E74B5',symbolDesc:'Professor Pixel holding a small glowing teal cube in one open hand — hand clearly visible cradling the cube'}]},
 
-  {id:'nia-bot',name:'Nia-Bot',emoji:'🧭',niaVoice:false,structureClass:'device',archetype:'Structural Navigation',
+  {id:'nia-bot',calloutCircleColor:'#001858',name:'Nia-Bot',emoji:'🧭',niaVoice:false,structureClass:'device',archetype:'Structural Navigation',
    role:'Hero HQ guide-bot / directional tool',energyLevel:'Medium — confident, directed, utilitarian',
    referenceStatus:'needs-reclassification',
    palette:[{hex:NAVY,label:'Deep navy (body/outline)'},{hex:'#2BD4C8',label:'Teal accent'},{hex:'#FF69B4',label:'Pink pixel accent (screen)'},{hex:'#00FFFF',label:'Cyan glow'}],
@@ -709,7 +717,7 @@ FORBIDDEN: Humanoid robot body, articulated limbs like Patch, standing bipedal p
     tier2:[{id:'niabot-arrow',name:'Direction arrow',concept:'Go this way',needsRegen:false,circleColor:NAVY,symbolDesc:'A bold right-pointing arrow, centered'},{id:'niabot-compass',name:'Compass',concept:'Find your direction',needsRegen:false,circleColor:'#2BD4C8',symbolDesc:'A simple compass rose with a prominent north needle'},{id:'niabot-map',name:'Map pin',concept:'You are here',needsRegen:false,circleColor:NAVY,symbolDesc:'A map location pin/teardrop shape'}]},
    props:[]},
 
-  {id:'asa',name:'Asa',emoji:'🌀',niaVoice:false,structureClass:'abstract',archetype:'AI Learning Partner',
+  {id:'asa',calloutCircleColor:'#001858',name:'Asa',emoji:'🌀',niaVoice:false,structureClass:'abstract',archetype:'AI Learning Partner',
    role:'AI learning partner (non-hero / special)',energyLevel:'Medium — curious, experimental, learning-oriented',
    referenceStatus:'approved',
    palette:[{hex:'#C0C8E8',label:'Silver-blue (base arc fill)'},{hex:'#2BD4C8',label:'Teal (thinking/focused state glow)'},{hex:'#74B9FF',label:'Soft blue (listening particles)'},{hex:NAVY,label:'Deep navy (outline — #001858)'}],
@@ -793,7 +801,7 @@ REFERENCE IMAGE: Attach the approved Asa 2 reference (dark monochrome pinwheel s
     tier2:[{id:'asa-swirl',name:'Swirl symbol',concept:'AI is pattern-based',needsRegen:false,circleColor:'#7F77DD',symbolDesc:'A flowing double swirl or spiral'},{id:'asa-question',name:'Question mark',concept:'AI is uncertain',needsRegen:false,circleColor:'#5DCAA5',symbolDesc:'A bold question mark with a small sparkle'},{id:'asa-node',name:'Pattern node',concept:'Connected patterns',needsRegen:false,circleColor:'#7F77DD',symbolDesc:'A small node network of 4 connected dots'}]},
    props:[]},
 
-  {id:'navigator-nia',name:'Navigator Nia',emoji:'📡',niaVoice:true,structureClass:null,archetype:'Structural Navigation',
+  {id:'navigator-nia',calloutCircleColor:'#001858',name:'Navigator Nia',emoji:'📡',niaVoice:true,structureClass:null,archetype:'Structural Navigation',
    role:'System architect & voice of Hero HQ',energyLevel:'Voice only — calm authority, strategic clarity',
    referenceStatus:'voice-only',
    palette:[],heroMove:'Direct the mission',coreQuestion:'What is the mission, and what do we need to do next?',
@@ -949,7 +957,7 @@ function buildBubblePrompt(char,bubbleTypeId,dir){
   const isCallout=bubbleTypeId==='callout';
   const isThought=bubbleTypeId==='thought';
   if(isCallout){
-    return [`Create a standalone callout panel in the Byte-Sized Heroes style. NO full character illustration.`,``,`OUTLINE LOCK: All outlines #001858 deep navy (never black)`,``,bt.desc(),``,`CHARACTER: ${char.name}`,char.palette.map(p=>`- ${p.label}: ${p.hex}`).join('\n'),``,`FORBIDDEN: No full character. No text. No gradients. No black outlines. Keep text area empty.`,``,`OUTPUT: Wide landscape callout panel. White background. Suitable for slides and worksheets.`].join('\n');
+    return [`Create a standalone callout panel in the Byte-Sized Heroes style. NO full character body illustration.`,``,`OUTLINE LOCK: All outlines #001858 deep navy (never black)`,``,bt.desc(char),``,`CHARACTER: ${char.name}`,`Icon circle color: ${char.calloutCircleColor||'#001858'}`,char.palette.map(p=>`- ${p.label}: ${p.hex}`).join('\n'),``,`FORBIDDEN: No full character body. No text in text zone. No gradients. No black outlines. No extra embellishments.`,``,`OUTPUT: Wide landscape callout panel. White or transparent background. Suitable for slides and worksheets.`].join('\n');
   }
   const chosenIcon=isThought&&selectedFill==='filled'?char.icons.tier2.find(i=>i.id===selectedThoughtIcon):null;
   const pose=POSES.find(p=>p.id===(dir==='left'?'explaining_right':'explaining_left'));
