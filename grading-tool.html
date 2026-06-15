@@ -587,7 +587,7 @@ Respond with ONLY valid JSON. No markdown fences, no preamble.
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 2000,
         system: 'You are an expert instructional assistant helping a middle school CS teacher grade web development projects. Always make a preliminary score from code. Be specific. Student feedback: warm, honest, actionable, middle-school level, no points. Output only valid JSON — no markdown, no preamble.',
         messages: [{ role: 'user', content: prompt }]
