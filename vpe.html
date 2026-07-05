@@ -65,6 +65,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .header-right { display: flex; align-items: center; gap: 12px; }
 .navy-lock-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; padding: 3px 9px; border-radius: 20px; background: rgba(0,24,88,0.6); color: var(--teal-light); font-family: var(--mono); border: 1px solid var(--border); }
 .version-pill { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: var(--surface2); color: var(--text3); border: 1px solid var(--border); font-family: var(--mono); }
+.nav-link { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); text-decoration: none; transition: all 0.14s; font-family: var(--font); }
+.nav-link:hover { color: var(--text); border-color: var(--border2); }
 
 /* ── LAYOUT ── */
 .container { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
@@ -278,6 +280,8 @@ footer span { color: var(--teal); }
     <div class="logo-text">Byte-Sized <span>Heroes</span></div>
   </div>
   <div class="header-right">
+    <a href="index.html" class="nav-link">← Toolbox</a>
+    <a href="doc-icons.html" class="nav-link">📄 Doc Icons</a>
     <div class="navy-lock-pill"><i class="ti ti-lock" style="font-size:10px;"></i> #001858 locked</div>
     <div class="version-pill">VPE v4</div>
   </div>
