@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BSH Document Icon Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<style>
+:root {
+  --navy: #001858;
+  --navy-mid: #0A2A6E;
+  --teal: #2BD4C8;
+  --teal-light: #74F8FF;
+  --gold: #F7C318;
+  --bg: #060D1F;
+  --bg2: #0C1830;
+  --surface: #111C38;
+  --surface2: #172040;
+  --surface3: #1E2A50;
+  --border: rgba(43,212,200,0.12);
+  --border2: rgba(43,212,200,0.22);
+  --text: #EEF2FF;
+  --text2: #8899CC;
+  --text3: #4A5A88;
+  --green-bg: rgba(29,158,117,0.12);
+  --green-border: rgba(29,158,117,0.4);
+  --green-text: #4DFFC0;
+  --green: #1D9E75;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
+
+/* HEADER */
+.site-header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-mark { width: 26px; height: 26px; background: linear-gradient(135deg, var(--teal), var(--navy-mid)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.logo-text { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.logo-text span { color: var(--teal); }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.back-link { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); text-decoration: none; transition: all 0.14s; font-family: var(--font); }
+.back-link:hover { color: var(--text); border-color: var(--border2); }
+.version-pill { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: var(--surface2); color: var(--text3); border: 1px solid var(--border); font-family: var(--mono); }
+
+/* LAYOUT */
+.container { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+.page-intro { margin-bottom: 1.25rem; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.page-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+
+/* PANEL GRID */
+.panel-grid { display: grid; grid-template-columns: 240px 1fr; gap: 1rem; align-items: start; }
+
+/* DOC TYPE LIST */
+.doc-list { display: flex; flex-direction: column; gap: 3px; }
+.group-label { font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 4px 3px; }
+.doc-card { padding: 8px 11px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.14s; display: flex; align-items: center; gap: 9px; }
+.doc-card:hover { border-color: var(--border2); background: var(--surface2); }
+.doc-card.active { border-color: var(--teal); background: var(--surface2); box-shadow: 0 0 0 1px rgba(43,212,200,0.15); }
+.doc-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); }
+.doc-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.doc-group-tag { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.core-badge { font-size: 9px; background: rgba(43,212,200,0.12); color: var(--teal); padding: 1px 5px; border-radius: 8px; border: 1px solid rgba(43,212,200,0.25); font-weight: 700; margin-left: auto; }
+
+/* DETAIL PANEL */
+.detail-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.5rem; }
+.detail-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.doc-avatar { width: 52px; height: 52px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.08); }
+.detail-name { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.detail-group { font-size: 11px; color: var(--text2); margin-top: 3px; }
+.detail-hex { font-size: 11px; font-family: var(--mono); color: var(--text3); margin-top: 3px; }
+
+/* COLOR SWATCH ROW */
+.color-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; padding: 10px 12px; background: var(--surface2); border-radius: var(--radius); border: 1px solid var(--border); }
+.color-block { width: 36px; height: 36px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+.color-info { flex: 1; }
+.color-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.color-hex { font-size: 11px; font-family: var(--mono); color: var(--text3); }
+.color-role { font-size: 10px; color: var(--text2); margin-top: 2px; }
+
+/* SPEC GRID */
+.spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 1rem; }
+.spec-block { background: var(--surface2); border-radius: var(--radius); padding: 9px 11px; border: 1px solid var(--border); }
+.spec-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; font-weight: 600; }
+.spec-value { font-size: 11px; color: var(--text); line-height: 1.4; font-weight: 500; }
+
+/* VARIANT PICKER */
+.section-title { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin: 1rem 0 6px; }
+.variant-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 1rem; }
+.variant-btn { padding: 8px 6px; font-size: 11px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface2); cursor: pointer; text-align: center; color: var(--text2); transition: all 0.12s; font-family: var(--font); font-weight: 500; line-height: 1.3; }
+.variant-btn .v-sub { font-size: 9px; display: block; opacity: 0.6; margin-top: 2px; }
+.variant-btn:hover { border-color: var(--border2); color: var(--text); }
+.variant-btn.active { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+
+/* ANCHOR NOTE */
+.anchor-note { display: flex; align-items: flex-start; gap: 8px; background: rgba(247,195,24,0.06); border-radius: var(--radius); padding: 9px 12px; margin-bottom: 1rem; border: 1px solid rgba(247,195,24,0.2); }
+.anchor-icon { font-size: 13px; flex-shrink: 0; color: var(--gold); margin-top: 1px; }
+.anchor-text { font-size: 11px; color: #CCB060; line-height: 1.5; }
+.anchor-text strong { color: #FFD860; }
+
+/* REF NOTE */
+.ref-note { display: flex; align-items: flex-start; gap: 8px; background: rgba(0,24,88,0.5); border-radius: var(--radius); padding: 9px 12px; margin-bottom: .75rem; border: 1px solid rgba(43,212,200,0.15); }
+.ref-icon { font-size: 13px; flex-shrink: 0; color: var(--teal); margin-top: 1px; }
+.ref-text { font-size: 11px; color: #74B9FF; line-height: 1.5; }
+.ref-text strong { color: var(--text); }
+
+/* PROMPT BOX */
+.prompt-box { background: #030812; color: #6EE7D4; border-radius: var(--radius); padding: 12px; font-family: var(--mono); font-size: 10.5px; line-height: 1.75; white-space: pre-wrap; word-break: break-word; max-height: 280px; overflow-y: auto; border: 1px solid var(--navy-mid); }
+.prompt-box.empty { background: var(--surface2); color: var(--text3); font-family: var(--font); font-size: 12px; font-style: italic; border: 1px solid var(--border); }
+.copy-btn { display: flex; align-items: center; gap: 6px; margin-top: 8px; padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--green-border); background: var(--green-bg); font-size: 12px; color: var(--green-text); cursor: pointer; font-family: var(--font); font-weight: 600; transition: all 0.12s; }
+.copy-btn:hover { background: var(--green); color: #fff; border-color: var(--green); }
+.copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text3); }
+.empty-icon { font-size: 32px; display: block; margin-bottom: 10px; }
+.empty-state p { font-size: 13px; line-height: 1.6; }
+
+/* COLOR SYSTEM REFERENCE */
+.color-system { margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.25rem; }
+.cs-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 1rem; letter-spacing: -0.01em; }
+.cs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.cs-chip { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--surface2); border-radius: var(--radius); border: 1px solid var(--border); }
+.cs-dot { width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
+.cs-info { flex: 1; min-width: 0; }
+.cs-doc { font-size: 11px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cs-hex { font-size: 10px; font-family: var(--mono); color: var(--text3); }
+
+/* FOOTER */
+footer { text-align: center; padding: 1.5rem; font-size: 11px; color: var(--text3); border-top: 1px solid var(--border); margin-top: 2rem; font-family: var(--mono); }
+footer span { color: var(--teal); }
+
+@media (max-width: 700px) {
+  .panel-grid { grid-template-columns: 1fr; }
+  .spec-grid { grid-template-columns: 1fr; }
+  .variant-grid { grid-template-columns: repeat(2, 1fr); }
+  .cs-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-mark">⚡</div>
+    <div class="logo-text">Byte-Sized <span>Heroes</span></div>
+  </a>
+  <div class="header-right">
+    <a href="vpe.html" class="back-link">← Hero Companions VPE</a>
+    <div class="version-pill">Doc Icons v1</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="page-intro">
+    <div class="page-title">Document Icon Engine</div>
+    <div class="page-sub">Generate BSH document badge prompts for DALL-E / ChatGPT / Copilot — transparent PNG, navy outline, consistent style</div>
+  </div>
+
+  <div class="panel-grid">
+    <div class="doc-list" id="docList"></div>
+    <div class="detail-panel" id="detailPanel">
+      <div class="empty-state">
+        <span class="empty-icon">📄</span>
+        <p>Select a document type to view its<br>color spec and generate an icon prompt</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color System Reference -->
+  <div class="color-system">
+    <div class="cs-title">BSH Document Color System — complete reference</div>
+    <div class="cs-grid" id="colorSystemGrid"></div>
+  </div>
+</div>
+
+<footer>
+  <span>Byte-Sized Heroes™</span> · Document Icon Engine v1 · Canon outline: <span>#001858</span> · All icons: transparent PNG
+</footer>
+
+<script>
+const NAVY = '#001858';
+
+const DOC_ICON_STYLE = `DOCUMENT ICON STYLE (locked — BSH Document Icon System):
+- Transparent background — NO background circle, NO colored backdrop outside the icon object
+- Deep navy outline: #001858 (never black, never #000000) — consistent weight throughout
+- The icon object itself is a physical classroom item — notebook, binder, folder, etc.
+- Style: 2.5D — NOT fully flat, NOT fully isometric. Gentle depth suggestion only:
+  • A slight page-edge or cover thickness visible on one side
+  • One soft directional shadow beneath the object (very subtle, flat vector style)
+  • Rounded corners and friendly proportions — no sharp or aggressive geometry
+- Soft highlights: one highlight on the top/front face, consistent light source from upper-left
+- Simple shading: 2 tones max (base color + one slightly darker shade for depth)
+- Small BSH 4-pointed star sparkle accent — positioned upper-right of the icon object
+- Color fills use the document's assigned color (specified below)
+- White or cream for page/paper surfaces where applicable
+- Readable and recognizable at 48px minimum
+- Export intent: transparent PNG, suitable for Canva, PowerPoint, and web`;
+
+const VARIANTS = [
+  { id: 'full', label: 'Full', sub: 'Standard icon', desc: `VARIANT — Full:\nStandard document icon. Full color, full detail, with sparkle accent. Primary production asset.` },
+  { id: 'mini', label: 'Mini', sub: 'Small UI use', desc: `VARIANT — Mini:\nSimplified version for small UI contexts (32px or smaller). Reduce detail — keep only the most recognizable silhouette elements. Outline slightly thicker relative to object size. No sparkle at this scale.` },
+  { id: 'outline', label: 'Outline', sub: 'Line art only', desc: `VARIANT — Outline:\nLine art only — no color fills, no shading. Navy outline #001858 on transparent background. Useful for coloring sheets, worksheets, or monochrome print contexts. Sparkle rendered as outline only.` },
+  { id: 'mono', label: 'Monochrome', sub: 'Single color', desc: `VARIANT — Monochrome:\nSingle color version using the document's assigned color as a flat fill. No shading, no highlights, no secondary colors. Navy outline still present. Useful for watermarks, stamps, or single-color print contexts.` }
+];
+
+const GROUPS = [
+  { id: 'core', label: 'Core Four', isCore: true },
+  { id: 'evaluation', label: 'Evaluation' },
+  { id: 'student-activity', label: 'Student Activity' },
+  { id: 'teacher-only', label: 'Teacher-Only' },
+  { id: 'achievement', label: 'Achievement' },
+  { id: 'student-hero', label: 'Student / Hero' },
+  { id: 'reference', label: 'Reference' },
+  { id: 'display', label: 'Display' }
+];
+
+const DOC_TYPES = [
+  // Core Four
+  { id: 'student-pack', name: 'Student Pack', emoji: '📘', group: 'core', color: '#2BD4C8', colorName: 'Teal',
+    object: 'spiral notebook',
+    isCore: true,
+    physicalDesc: 'A spiral-bound notebook viewed from a slight angle. Teal cover (#2BD4C8) with visible coil binding along the left edge. White ruled page visible at top. Rounded corners. Teal cover has a subtle lighter highlight on the upper-left face.',
+    concept: 'Student-facing interactive content — vocabulary, practice pages, Builder\'s Check-In',
+    anchor: 'This is one of the four core document icons established on the BSH website. Use the existing Student Pack teal notebook as the direct style anchor.' },
+
+  { id: 'teacher-guide', name: 'Teacher Guide', emoji: '📙', group: 'core', color: '#2E74B5', colorName: 'Blue',
+    object: 'three-ring binder',
+    isCore: true,
+    physicalDesc: 'A three-ring binder viewed from a slight angle. Blue cover (#2E74B5) with visible ring mechanism on the spine. Small white label area on the cover front. Rounded corners. Blue cover has a subtle lighter highlight on the upper-left face.',
+    concept: 'Full teacher script, pacing guides, differentiation, companion guidance',
+    anchor: 'This is one of the four core document icons established on the BSH website. Use the existing Teacher Guide blue binder as the direct style anchor.' },
+
+  { id: 'presentation-deck', name: 'Presentation Deck', emoji: '🖥', group: 'core', color: '#7B2FBE', colorName: 'Purple',
+    object: 'presentation monitor screen',
+    isCore: true,
+    physicalDesc: 'A monitor or projection screen displaying a simple slide. Purple screen bezel (#7B2FBE). Screen shows a simple white slide with a small chart or text lines. Monitor stand visible below. Slight perspective angle.',
+    concept: 'Story hooks, hero companions, guided discussions, reflection slides',
+    anchor: 'This is one of the four core document icons established on the BSH website. Use the existing Presentation Deck purple monitor as the direct style anchor.' },
+
+  { id: 'mini-features-pack', name: 'Mini-Features Pack', emoji: '📁', group: 'core', color: '#F7A520', colorName: 'Orange',
+    object: 'folder with star badge',
+    isCore: true,
+    physicalDesc: 'An open folder viewed from a slight angle. Orange folder (#F7A520) with a small gold star badge or sticker on the front face. Tab visible at top. Contents suggested but not detailed. Rounded corners.',
+    concept: 'Quick activities and challenges with tiered extensions',
+    anchor: 'This is one of the four core document icons established on the BSH website. Use the existing Mini-Features Pack orange folder as the direct style anchor.' },
+
+  // Evaluation
+  { id: 'assessment', name: 'Assessment', emoji: '📋', group: 'evaluation', color: '#3DA35D', colorName: 'Green',
+    object: 'clipboard with checkmark',
+    physicalDesc: 'A clipboard with a green clip at the top (#3DA35D). White paper attached showing a few lines and a bold checkmark. The clipboard base has a slight wood or neutral texture suggestion. Slight angle showing depth of the clip.',
+    concept: 'Formal evaluation of student understanding' },
+
+  { id: 'rubric', name: 'Rubric', emoji: '📊', group: 'evaluation', color: '#3DA35D', colorName: 'Green',
+    object: 'grid document with rows and columns',
+    physicalDesc: 'A document page showing a visible grid/table structure — horizontal rows and vertical columns creating a rubric grid. Green header bar at the top (#3DA35D). White page body. Slight page-edge depth on the right side.',
+    concept: 'Scoring criteria and performance levels' },
+
+  // Student Activity
+  { id: 'worksheet', name: 'Worksheet', emoji: '📝', group: 'student-activity', color: '#7BC142', colorName: 'Lime',
+    object: 'paper sheet with pencil',
+    physicalDesc: 'A single white paper sheet with a lime green accent bar or corner fold (#7BC142). A pencil rests diagonally across the lower-right corner of the paper. Paper shows a few ruled lines suggesting student work space. Slight page-edge depth.',
+    concept: 'Student practice and activity pages' },
+
+  { id: 'station-cards', name: 'Station Cards', emoji: '🃏', group: 'student-activity', color: '#7BC142', colorName: 'Lime',
+    object: 'small stack of rounded cards',
+    physicalDesc: 'A small fanned stack of 3 rounded-corner cards, slightly fanned to show depth. Lime green card backs (#7BC142). Top card face shows white with a simple icon or number. Cards have visible rounded corners. Stack suggests a set of activity cards.',
+    concept: 'Rotation station activity cards for classroom use' },
+
+  // Teacher-Only
+  { id: 'teacher-script', name: 'Teacher Script', emoji: '🎙', group: 'teacher-only', color: '#4A6FA5', colorName: 'Slate Blue',
+    object: 'document with speech lines',
+    physicalDesc: 'A document page with a slate blue header bar (#4A6FA5). Page body shows several lines of text with a small speech bubble or quotation mark icon suggesting scripted dialogue. Slight page-edge depth on right side. More formal/structured than the worksheet.',
+    concept: 'Word-for-word teacher dialogue and facilitation notes' },
+
+  { id: 'planning-guide', name: 'Planning Guide', emoji: '🗓', group: 'teacher-only', color: '#4A6FA5', colorName: 'Slate Blue',
+    object: 'calendar or planner document',
+    physicalDesc: 'A planner-style document with a slate blue cover or header (#4A6FA5). Visible grid or calendar lines on the open page. Small checkboxes or timeline indicators. Ring binding on the left side suggesting a planner format. Slight angle showing depth.',
+    concept: 'Pacing guides, lesson sequence, and planning frameworks' },
+
+  // Achievement
+  { id: 'certificate', name: 'Certificate', emoji: '🏅', group: 'achievement', color: '#D4820A', colorName: 'Rich Amber',
+    object: 'certificate with ribbon or seal',
+    physicalDesc: 'A formal certificate document with decorative border in amber (#D4820A). A circular seal or ribbon badge in the lower corner. The certificate paper is cream/ivory. Slight page-edge depth. Stars or decorative corner elements in amber. Formal but friendly proportions.',
+    concept: 'Builder achievement recognition and celebration' },
+
+  // Student/Hero
+  { id: 'hero-cards', name: 'Hero Cards', emoji: '⭐', group: 'student-hero', color: '#5DCAA5', colorName: 'Light Teal',
+    object: 'rounded hero card with character silhouette',
+    physicalDesc: 'A rounded-corner card in light teal (#5DCAA5) with a small Hero Companion silhouette or star badge on the front face. Card proportions suggest a trading card or reference card format. Small stack of 2 cards showing depth — the back card slightly offset. Friendly, student-facing feel.',
+    concept: 'Hero Companion reference cards for student use' },
+
+  // Reference
+  { id: 'quick-reference', name: 'Quick Reference', emoji: '📄', group: 'reference', color: '#9B8EC4', colorName: 'Lavender',
+    object: 'single folded reference card',
+    physicalDesc: 'A single document card, slightly smaller than full page, with a lavender accent bar or fold (#9B8EC4). A folded edge visible — suggests a laminated or folded quick-reference format. Simple, clean, dense with small text lines. Slight page-edge depth.',
+    concept: 'At-a-glance reference for students or teachers' },
+
+  { id: 'companion-guide', name: 'Companion Guide', emoji: '📚', group: 'reference', color: '#9B8EC4', colorName: 'Lavender',
+    object: 'open book with hero accent',
+    physicalDesc: 'An open book viewed from a slight angle. Lavender spine and cover (#9B8EC4). Pages open and visible. A small Hero Companion star or silhouette detail on the visible page. Rounded corners on cover. Slight depth on the spine.',
+    concept: 'Hero Companion reference and background information' },
+
+  { id: 'vocabulary', name: 'Vocabulary', emoji: '🔤', group: 'reference', color: '#9B8EC4', colorName: 'Lavender',
+    object: 'word card or glossary document',
+    physicalDesc: 'A card or document showing a large first letter or word indicator in lavender (#9B8EC4). The card has a clean white face with a few text lines suggesting definitions. Slightly taller than wide — portrait orientation. Rounded corners. Could suggest a flashcard or glossary page.',
+    concept: 'Key term definitions and vocabulary support' },
+
+  // Display
+  { id: 'poster', name: 'Poster', emoji: '🗺', group: 'display', color: '#E05C3A', colorName: 'Coral',
+    object: 'rolled or hanging poster',
+    physicalDesc: 'A poster rolled into a cylinder or hanging flat with a slight curl at the bottom corner. Coral accent on the rolled end or border (#E05C3A). The poster face shows a simple layout suggestion — a headline bar and visual area. The rolled version shows depth of the paper cylinder.',
+    concept: 'Classroom display posters for visual reference' }
+];
+
+let selectedDoc = null;
+let selectedVariant = 'full';
+
+function buildPrompt(doc, variantId) {
+  const variant = VARIANTS.find(v => v.id === variantId);
+  const anchorNote = doc.isCore
+    ? `\nSTYLE ANCHOR: ${doc.anchor}\nAttach the existing approved BSH ${doc.name} icon as a reference image alongside this prompt. Match the established style exactly while applying the variant specification.\n`
+    : `\nSTYLE ANCHOR: If available, attach one of the four core BSH document icons (Student Pack, Teacher Guide, Presentation Deck, or Mini-Features Pack) as a reference image. This new icon must feel like it belongs to the same visual family.\n`;
+
+  return [
+    `Create a BSH Document Icon for: ${doc.name}`,
+    ``,
+    DOC_ICON_STYLE,
+    ``,
+    variant.desc,
+    ``,
+    `DOCUMENT: ${doc.name}`,
+    `OBJECT: ${doc.object}`,
+    `CONCEPT: ${doc.concept}`,
+    ``,
+    `VISUAL DESCRIPTION:`,
+    doc.physicalDesc,
+    ``,
+    `COLOR SPECIFICATION:`,
+    `- Primary color: ${doc.colorName} ${doc.color}`,
+    `- Outline: #001858 deep navy (never black)`,
+    `- Page/paper surfaces: white or cream #FAFAF8`,
+    `- Sparkle accent: gold #F7C318 (4-pointed star, upper-right)`,
+    `- Shading: use a slightly darker variant of ${doc.color} for depth shadows`,
+    anchorNote,
+    `FORBIDDEN:`,
+    `- No background circle or colored backdrop`,
+    `- No black outlines (#000000)`,
+    `- No realistic rendering or photography style`,
+    `- No full isometric perspective — gentle 2.5D depth only`,
+    `- No text, labels, or words on the icon`,
+    `- No Hero Companion character bodies (character silhouettes as small accents only if specified)`,
+    ``,
+    `OUTPUT: Transparent PNG background. Square 1:1 format. Clean flat-to-2.5D vector style. Suitable for Canva, PowerPoint slides, TPT product pages, and web use.`
+  ].join('\n');
+}
+
+function renderList() {
+  const list = document.getElementById('docList');
+  let html = '';
+  GROUPS.forEach(group => {
+    const docs = DOC_TYPES.filter(d => d.group === group.id);
+    if (!docs.length) return;
+    html += `<div class="group-label">${group.label}</div>`;
+    docs.forEach(doc => {
+      const isActive = selectedDoc && selectedDoc.id === doc.id;
+      html += `<div class="doc-card ${isActive ? 'active' : ''}" onclick="selectDoc('${doc.id}')">
+        <div class="doc-swatch" style="background:${doc.color};"></div>
+        <div style="flex:1;min-width:0;">
+          <div class="doc-name">${doc.name}</div>
+        </div>
+        ${doc.isCore ? '<span class="core-badge">canon</span>' : ''}
+      </div>`;
+    });
+  });
+  list.innerHTML = html;
+}
+
+function selectDoc(id) {
+  selectedDoc = DOC_TYPES.find(d => d.id === id);
+  selectedVariant = 'full';
+  renderList();
+  renderDetail();
+}
+
+function selectVariant(id) {
+  selectedVariant = id;
+  document.querySelectorAll('.variant-btn').forEach(b => b.classList.toggle('active', b.dataset.variant === id));
+  renderPrompt();
+}
+
+function renderPrompt() {
+  const box = document.getElementById('promptBox');
+  const btn = document.getElementById('copyBtn');
+  if (!box) return;
+  if (selectedDoc) {
+    box.textContent = buildPrompt(selectedDoc, selectedVariant);
+    box.className = 'prompt-box';
+    btn.style.display = 'flex';
+  } else {
+    box.textContent = 'Select a document type to generate the prompt.';
+    box.className = 'prompt-box empty';
+    btn.style.display = 'none';
+  }
+}
+
+function copyPrompt() {
+  if (!selectedDoc) return;
+  const text = buildPrompt(selectedDoc, selectedVariant);
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('copied');
+    btn.innerHTML = '<i class="ti ti-check"></i> Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<i class="ti ti-copy"></i> Copy prompt'; }, 2000);
+  });
+}
+
+function renderDetail() {
+  const panel = document.getElementById('detailPanel');
+  if (!selectedDoc) {
+    panel.innerHTML = `<div class="empty-state"><span class="empty-icon">📄</span><p>Select a document type to view its<br>color spec and generate an icon prompt</p></div>`;
+    return;
+  }
+  const d = selectedDoc;
+  const group = GROUPS.find(g => g.id === d.group);
+
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="doc-avatar" style="background:${d.color}22; border-color:${d.color}44;">${d.emoji}</div>
+      <div>
+        <div class="detail-name">${d.name}</div>
+        <div class="detail-group">${group?.label || d.group} ${d.isCore ? '· Canon icon' : ''}</div>
+        <div class="detail-hex">${d.colorName} · ${d.color}</div>
+      </div>
+    </div>
+
+    <div class="color-row">
+      <div class="color-block" style="background:${d.color};"></div>
+      <div class="color-info">
+        <div class="color-name">${d.colorName}</div>
+        <div class="color-hex">${d.color}</div>
+        <div class="color-role">${d.concept}</div>
+      </div>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-block"><div class="spec-label">Object</div><div class="spec-value">${d.object}</div></div>
+      <div class="spec-block"><div class="spec-label">Outline</div><div class="spec-value" style="font-family:var(--mono);font-size:10px;">#001858 deep navy</div></div>
+      <div class="spec-block"><div class="spec-label">Sparkle</div><div class="spec-value">Gold #F7C318 · upper-right</div></div>
+      <div class="spec-block"><div class="spec-label">Background</div><div class="spec-value">Transparent PNG</div></div>
+    </div>
+
+    ${d.isCore ? `<div class="anchor-note"><i class="ti ti-star anchor-icon"></i><div class="anchor-text"><strong>Canon icon:</strong> This is one of the four core BSH document types. Attach the existing approved icon as a reference image when generating. The prompt will extend the established style.</div></div>` : `<div class="anchor-note"><i class="ti ti-link anchor-icon"></i><div class="anchor-text"><strong>Style anchor:</strong> Attach one of the four core document icons (Student Pack, Teacher Guide, Presentation Deck, or Mini-Features Pack) as a reference image. This icon must feel like it belongs to the same family.</div></div>`}
+
+    <div class="section-title">Variant</div>
+    <div class="variant-grid">
+      ${VARIANTS.map(v => `<button class="variant-btn ${selectedVariant === v.id ? 'active' : ''}" data-variant="${v.id}" onclick="selectVariant('${v.id}')">${v.label}<span class="v-sub">${v.sub}</span></button>`).join('')}
+    </div>
+
+    <div class="ref-note"><i class="ti ti-paperclip ref-icon"></i><div class="ref-text"><strong>Pro tip:</strong> In ChatGPT or Copilot, attach a reference image alongside this prompt. For core icons, use the existing BSH icon. For extended icons, use any core icon as a style anchor.</div></div>
+
+    <div class="prompt-box empty" id="promptBox">Click a variant above to generate the prompt.</div>
+    <button class="copy-btn" id="copyBtn" onclick="copyPrompt()" style="display:none;"><i class="ti ti-copy"></i> Copy prompt</button>`;
+
+  // Auto-select full variant and render
+  selectVariant('full');
+}
+
+function renderColorSystem() {
+  const grid = document.getElementById('colorSystemGrid');
+  grid.innerHTML = DOC_TYPES.map(d => `
+    <div class="cs-chip">
+      <div class="cs-dot" style="background:${d.color};"></div>
+      <div class="cs-info">
+        <div class="cs-doc">${d.name}</div>
+        <div class="cs-hex">${d.color}</div>
+      </div>
+    </div>`).join('');
+}
+
+renderList();
+renderColorSystem();
+</script>
+</body>
+</html>
