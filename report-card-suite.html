@@ -160,8 +160,13 @@ td input[type=text]{width:100%;min-width:7.5rem;border-color:var(--rule)}
 td select{border-color:var(--rule)}
 td.flagged{background:var(--flag)}
 .lv-select{width:3.4rem;text-align:center}
-.cmt-cell{min-width:260px;max-width:380px}
-.cmt-text{font-size:.85rem;line-height:1.45;color:var(--ink);margin-bottom:.3rem;max-height:6.6em;overflow:auto}
+.cmt-cell{min-width:280px}
+.cmt-text{
+  font-size:.85rem;line-height:1.5;color:var(--ink);margin-bottom:.3rem;
+  height:8em;min-height:4em;min-width:250px;max-width:60vw;
+  overflow:auto;resize:both;
+  border:1px solid var(--rule);border-radius:6px;background:#FDFDFB;padding:.45rem .55rem;
+}
 .cmt-text.placeholder{color:var(--ink-soft);font-style:italic}
 .cmt-meta{display:flex;gap:.6rem;align-items:center}
 .cmt-count{font-family:'Spline Sans Mono',monospace;font-size:.72rem;color:var(--ink-soft)}
