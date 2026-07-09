@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Report Card Suite — Powered by the Smart Feedback Engine</title>
+<meta name="description" content="Write professional, teacher-authored report card comments in minutes. Runs entirely in your browser — no accounts, no uploads, student names never leave your device. A Bricolage tool.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F6F2;
+  --card:#FFFFFF;
+  --ink:#26323B;
+  --ink-soft:#5A6A75;
+  --rule:#DCE1DA;
+  --rule-strong:#C7CFC5;
+  --pine:#2E5D50;
+  --pine-dark:#23453C;
+  --pine-tint:#E7EFEB;
+  --marigold:#E8A33D;
+  --marigold-tint:#FBF0DC;
+  --flag:#F7E8CF;
+  --danger:#B4552D;
+  --danger-tint:#F6E3D9;
+  --margin-red:#D9857A;
+  --shadow:0 1px 2px rgba(38,50,59,.06), 0 4px 14px rgba(38,50,59,.05);
+  --radius:10px;
+  --line-h:2.1rem;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Public Sans',system-ui,sans-serif;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;cursor:pointer}
+select,input[type=text],input[type=number]{
+  font:inherit;color:var(--ink);
+  border:1px solid var(--rule-strong);border-radius:6px;
+  background:var(--card);padding:.4rem .55rem;
+}
+select:focus-visible,input:focus-visible,button:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--pine);outline-offset:2px;
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- header ---------- */
+.masthead{
+  background:var(--pine);color:#F2F5F1;
+  padding:1.4rem 1.5rem 1.2rem;
+}
+.masthead-inner{max-width:1060px;margin:0 auto;display:flex;flex-wrap:wrap;gap:.8rem 2rem;align-items:baseline;justify-content:space-between}
+.wordmark{font-family:'Bitter',serif;font-weight:700;font-size:1.55rem;letter-spacing:.01em}
+.wordmark small{display:block;font-family:'Public Sans',sans-serif;font-weight:500;font-size:.8rem;opacity:.85;letter-spacing:.02em;margin-top:.15rem}
+.brand-line{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.privacy-strip{
+  background:var(--pine-dark);color:#E4EDE8;
+  font-size:.82rem;padding:.5rem 1.5rem;text-align:center;
+}
+.privacy-strip strong{color:#fff}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1060px;margin:0 auto;padding:1.4rem 1.5rem 4rem}
+
+.global-controls{
+  display:flex;flex-wrap:wrap;gap:.9rem 1.6rem;align-items:end;
+  background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:.9rem 1.1rem;margin-bottom:1.2rem;
+}
+.field{display:flex;flex-direction:column;gap:.25rem}
+.field label{font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft)}
+.field-row{display:flex;gap:.4rem;align-items:center}
+.hint{font-size:.75rem;color:var(--ink-soft)}
+.spacer{flex:1}
+.btn{
+  border:1px solid var(--rule-strong);background:var(--card);color:var(--ink);
+  border-radius:6px;padding:.45rem .8rem;font-weight:600;font-size:.85rem;
+  transition:background .15s,border-color .15s;
+}
+.btn:hover{background:var(--pine-tint);border-color:var(--pine)}
+.btn-primary{background:var(--pine);border-color:var(--pine);color:#fff}
+.btn-primary:hover{background:var(--pine-dark)}
+.btn-quiet{border:none;background:none;color:var(--pine);text-decoration:underline;text-underline-offset:3px;padding:.3rem .2rem}
+.btn-danger{color:var(--danger);border-color:var(--danger)}
+.btn-danger:hover{background:var(--danger-tint)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- tabs ---------- */
+.mode-tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+.mode-tab{
+  border:1px solid var(--rule-strong);border-bottom-width:3px;background:var(--card);
+  border-radius:8px 8px 0 0;padding:.6rem 1.2rem;font-weight:600;color:var(--ink-soft);
+}
+.mode-tab[aria-selected=true]{color:var(--pine-dark);border-color:var(--pine);background:var(--pine-tint)}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:0 var(--radius) var(--radius) var(--radius);box-shadow:var(--shadow);padding:1.3rem 1.4rem}
+.panel h2{font-family:'Bitter',serif;font-size:1.15rem;margin-bottom:.2rem}
+.panel .sub{color:var(--ink-soft);font-size:.88rem;margin-bottom:1.1rem}
+[hidden]{display:none!important}
+
+/* ---------- dashboard ---------- */
+.dash-top{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1.1rem}
+.skill-lines{display:flex;flex-direction:column;gap:.55rem;margin-bottom:.9rem}
+.skill-line{
+  display:grid;grid-template-columns:auto 1.4fr 1.4fr auto auto;gap:.6rem;align-items:center;
+  padding:.55rem .7rem;border:1px solid var(--rule);border-radius:8px;background:#FBFCFA;
+}
+.skill-line.off{opacity:.5}
+.level-group{display:flex;gap:.2rem}
+.level-btn{
+  width:2rem;height:2rem;border:1px solid var(--rule-strong);background:var(--card);
+  border-radius:6px;font-family:'Spline Sans Mono',monospace;font-weight:500;
+}
+.level-btn[aria-pressed=true]{background:var(--pine);border-color:var(--pine);color:#fff}
+.remove-line{border:none;background:none;color:var(--ink-soft);font-size:1.05rem;padding:.2rem .4rem}
+.remove-line:hover{color:var(--danger)}
+.dash-actions{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin-bottom:1.3rem}
+.toggle{display:flex;align-items:center;gap:.45rem;font-size:.9rem;font-weight:500}
+.toggle input{width:1.05rem;height:1.05rem;accent-color:var(--pine)}
+
+/* ---------- signature: plan-book preview ---------- */
+.planbook{
+  position:relative;border:1px solid var(--rule-strong);border-radius:8px;overflow:hidden;
+  background:
+    linear-gradient(to right, transparent 3.2rem, var(--margin-red) 3.2rem, var(--margin-red) calc(3.2rem + 2px), transparent calc(3.2rem + 2px)),
+    repeating-linear-gradient(to bottom, #FDFDFB 0, #FDFDFB calc(var(--line-h) - 1px), var(--rule) calc(var(--line-h) - 1px), var(--rule) var(--line-h));
+  min-height:calc(var(--line-h) * 4);
+}
+.planbook-text{
+  font-family:'Bitter',serif;font-size:1.02rem;line-height:var(--line-h);
+  padding:0 1.2rem 0 4.4rem;min-height:calc(var(--line-h) * 4);
+  white-space:pre-wrap;word-wrap:break-word;
+}
+.planbook-text.empty{color:var(--ink-soft);font-style:italic;font-family:'Public Sans',sans-serif;font-size:.92rem}
+.stamp{
+  position:absolute;top:.45rem;right:.6rem;
+  font-family:'Spline Sans Mono',monospace;font-size:.74rem;color:var(--ink-soft);
+  background:rgba(255,255,255,.85);border:1px solid var(--rule);border-radius:5px;padding:.15rem .45rem;
+}
+.stamp.over{color:#fff;background:var(--danger);border-color:var(--danger)}
+.preview-actions{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:.8rem;align-items:center}
+.copied{color:var(--pine-dark);font-size:.85rem;font-weight:600}
+
+/* ---------- class builder ---------- */
+.cb-setup{display:flex;flex-wrap:wrap;gap:1rem;align-items:end;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--rule)}
+.table-scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:880px;font-size:.9rem}
+thead th{
+  background:var(--pine-tint);color:var(--pine-dark);text-align:left;
+  font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+  padding:.55rem .6rem;border-bottom:2px solid var(--pine);white-space:nowrap;
+}
+tbody td{border-bottom:1px solid var(--rule);padding:.4rem .5rem;vertical-align:top;background:var(--card)}
+tbody tr:last-child td{border-bottom:none}
+td input[type=text]{width:100%;min-width:7.5rem;border-color:var(--rule)}
+td select{border-color:var(--rule)}
+td.flagged{background:var(--flag)}
+.lv-select{width:3.4rem;text-align:center}
+.cmt-cell{min-width:260px;max-width:380px}
+.cmt-text{font-size:.85rem;line-height:1.45;color:var(--ink);margin-bottom:.3rem;max-height:6.6em;overflow:auto}
+.cmt-text.placeholder{color:var(--ink-soft);font-style:italic}
+.cmt-meta{display:flex;gap:.6rem;align-items:center}
+.cmt-count{font-family:'Spline Sans Mono',monospace;font-size:.72rem;color:var(--ink-soft)}
+.cmt-count.over{color:var(--danger);font-weight:600}
+.mini-btn{border:1px solid var(--rule-strong);background:var(--card);border-radius:5px;padding:.15rem .5rem;font-size:.75rem;font-weight:600}
+.mini-btn:hover{background:var(--pine-tint);border-color:var(--pine)}
+.cb-actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem;align-items:center}
+
+/* ---------- AI panel ---------- */
+.ai-panel{margin-top:1.4rem;border:1px dashed var(--rule-strong);border-radius:var(--radius);padding:1.1rem 1.2rem;background:#FBFCFA}
+.ai-panel h3{font-family:'Bitter',serif;font-size:1.02rem;margin-bottom:.15rem}
+.ai-panel .sub{margin-bottom:.8rem}
+.ferpa-note{
+  background:var(--marigold-tint);border-left:4px solid var(--marigold);
+  padding:.6rem .8rem;font-size:.85rem;border-radius:0 6px 6px 0;margin-bottom:.9rem;
+}
+.prompt-box{
+  font-family:'Spline Sans Mono',monospace;font-size:.8rem;line-height:1.55;
+  background:var(--card);border:1px solid var(--rule-strong);border-radius:8px;
+  padding:.8rem .9rem;white-space:pre-wrap;word-wrap:break-word;margin-bottom:.7rem;max-height:14rem;overflow:auto;
+}
+.variation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.6rem;margin:.9rem 0}
+.variation{
+  text-align:left;border:1px solid var(--rule-strong);border-radius:8px;background:var(--card);padding:.6rem .7rem;
+  transition:border-color .15s,background .15s;
+}
+.variation[aria-pressed=true]{border-color:var(--pine);background:var(--pine-tint)}
+.variation b{display:block;font-size:.85rem;margin-bottom:.15rem}
+.variation span{font-size:.76rem;color:var(--ink-soft);display:block;line-height:1.4}
+.disclaimer-row{font-size:.85rem;display:flex;gap:.45rem;align-items:flex-start;margin-top:.4rem}
+.disclaimer-row input{margin-top:.2rem;accent-color:var(--pine)}
+
+/* ---------- footer ---------- */
+footer{max-width:1060px;margin:0 auto;padding:0 1.5rem 2.5rem;color:var(--ink-soft);font-size:.82rem;display:flex;flex-wrap:wrap;gap:.5rem 2rem;justify-content:space-between}
+footer a{color:var(--pine)}
+
+@media (max-width:720px){
+  .skill-line{grid-template-columns:auto 1fr;grid-auto-rows:auto}
+  .planbook-text{padding-left:1rem}
+  .planbook{background:repeating-linear-gradient(to bottom,#FDFDFB 0,#FDFDFB calc(var(--line-h) - 1px),var(--rule) calc(var(--line-h) - 1px),var(--rule) var(--line-h))}
+  .masthead-inner{flex-direction:column;gap:.4rem}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="wordmark">The Report Card Suite
+      <small>Powered by the Smart Feedback Engine</small>
+    </div>
+    <div class="brand-line">A Bricolage tool · Built for Tuesday</div>
+  </div>
+</header>
+<div class="privacy-strip">
+  <strong>Everything runs in this browser.</strong> No accounts, no uploads — student names never leave this device.
+</div>
+
+<main class="wrap">
+
+  <!-- global controls -->
+  <div class="global-controls">
+    <div class="field">
+      <label for="toneSel">Comment tone</label>
+      <select id="toneSel">
+        <option value="Standard">Standard — clear and professional</option>
+        <option value="Warm">Warm — nurturing and encouraging</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="limitSel">Character limit</label>
+      <div class="field-row">
+        <select id="limitSel">
+          <option value="">No limit</option>
+          <option value="500">500</option>
+          <option value="1000">1,000</option>
+          <option value="1500">1,500</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input type="number" id="limitCustom" min="50" max="20000" style="width:6rem" hidden aria-label="Custom character limit">
+      </div>
+      <span class="hint">Limits vary by district setup — check your report system.</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="field">
+      <label>Saved on this device</label>
+      <div class="field-row">
+        <span class="hint" id="saveStatus">Autosaves as you type.</span>
+        <button class="btn-quiet" id="clearDataBtn" type="button">Clear saved data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- mode tabs -->
+  <div class="mode-tabs" role="tablist" aria-label="Tool mode">
+    <button class="mode-tab" id="tabDash" role="tab" aria-selected="true" aria-controls="dashPanel" type="button">Dashboard <span class="hint" style="font-weight:400">· one student, deep focus</span></button>
+    <button class="mode-tab" id="tabClass" role="tab" aria-selected="false" aria-controls="classPanel" type="button">Class Builder <span class="hint" style="font-weight:400">· whole roster, high speed</span></button>
+  </div>
+
+  <!-- ================= DASHBOARD ================= -->
+  <section class="panel" id="dashPanel" role="tabpanel" aria-labelledby="tabDash">
+    <h2>Dashboard</h2>
+    <p class="sub">Best for complex profiles, IEP students, or mid-term deep dives. Build one comment, skill by skill.</p>
+
+    <div class="dash-top">
+      <div class="field">
+        <label for="dName">Student name</label>
+        <input type="text" id="dName" placeholder="e.g., Jordan" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="dPronoun">Pronouns</label>
+        <select id="dPronoun">
+          <option value="they">they / them</option>
+          <option value="she">she / her</option>
+          <option value="he">he / him</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="skill-lines" id="skillLines"></div>
+    <div class="dash-actions">
+      <button class="btn" id="addLineBtn" type="button">+ Add a skill line</button>
+      <label class="toggle"><input type="checkbox" id="dIep"> Include IEP/504 accommodation language</label>
+    </div>
+
+    <div class="planbook">
+      <div class="stamp" id="dCount">0 chars</div>
+      <div class="planbook-text empty" id="dPreview">Your comment will appear here as you score each skill line.</div>
+    </div>
+    <div class="preview-actions">
+      <button class="btn btn-primary" id="dCopyBtn" type="button">Copy comment (plain text)</button>
+      <button class="btn" id="dAiBtn" type="button" aria-expanded="false">Refine with AI (optional)</button>
+      <span class="copied" id="dCopied" hidden>Copied ✓</span>
+    </div>
+
+    <div class="ai-panel" id="dAiPanel" hidden>
+      <h3>AI Variator — optional polish</h3>
+      <p class="sub">This tool drafts every comment from teacher-authored language. AI is only for refining tone, clarity, or length. Final professional judgment stays with you.</p>
+      <div class="ferpa-note">
+        <strong>Privacy built in:</strong> the prompt below replaces your student's name with <b>[Student]</b>, so no student information is ever shared with an AI. After the AI responds, swap the real name back in yourself.
+      </div>
+      <div class="prompt-box" id="dPromptBox"></div>
+      <div class="variation-grid" id="dVariations"></div>
+      <label class="disclaimer-row"><input type="checkbox" id="dDisclaimer">
+        <span>Append AI notice of use — <em>“This comment was drafted with a structured feedback system and refined with AI for clarity.”</em> Use if your district requests notification.</span>
+      </label>
+      <div class="preview-actions">
+        <button class="btn btn-primary" id="dCopyPromptBtn" type="button">Copy prompt</button>
+        <span class="copied" id="dPromptCopied" hidden>Copied ✓</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CLASS BUILDER ================= -->
+  <section class="panel" id="classPanel" role="tabpanel" aria-labelledby="tabClass" hidden>
+    <h2>Class Builder</h2>
+    <p class="sub">Best for report card sprints. Pick one subject and up to four pillars, then score your whole roster 1–4.</p>
+
+    <div class="cb-setup">
+      <div class="field">
+        <label for="cbSubject">Subject</label>
+        <select id="cbSubject"></select>
+      </div>
+      <div class="field">
+        <label>Pillars for this pass (up to 4, no repeats)</label>
+        <div class="field-row" id="cbPillars"></div>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table id="cbTable" aria-label="Class roster">
+        <thead>
+          <tr>
+            <th>Student name</th><th>Pronouns</th>
+            <th class="pillar-h">P1</th><th class="pillar-h">P2</th><th class="pillar-h">P3</th><th class="pillar-h">P4</th>
+            <th>IEP/504</th><th>Final comment</th>
+          </tr>
+        </thead>
+        <tbody id="cbBody"></tbody>
+      </table>
+    </div>
+
+    <div class="cb-actions">
+      <button class="btn" id="addRowsBtn" type="button">+ Add 5 rows</button>
+      <button class="btn btn-primary" id="copyAllBtn" type="button">Copy all comments</button>
+      <span class="copied" id="allCopied" hidden>Copied ✓</span>
+      <div class="spacer"></div>
+      <button class="btn btn-danger" id="resetClassBtn" type="button">Reset class</button>
+    </div>
+    <p class="hint" style="margin-top:.5rem">Reset clears names, pronouns, and scores only — the sentence library is never touched. Soft-orange cells mean a name was entered but a score or pronoun is missing.</p>
+
+    <div class="ai-panel" id="cAiPanel" hidden>
+      <h3>AI Variator — <span id="cAiWho"></span></h3>
+      <p class="sub">Optional polish only. Final professional judgment stays with you.</p>
+      <div class="ferpa-note">
+        <strong>Privacy built in:</strong> the student's name is replaced with <b>[Student]</b> below. Swap the real name back in after the AI responds.
+      </div>
+      <div class="prompt-box" id="cPromptBox"></div>
+      <div class="variation-grid" id="cVariations"></div>
+      <div class="preview-actions">
+        <button class="btn btn-primary" id="cCopyPromptBtn" type="button">Copy prompt</button>
+        <span class="copied" id="cPromptCopied" hidden>Copied ✓</span>
+        <button class="btn-quiet" id="cAiClose" type="button">Close</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>The Report Card Suite · Web edition v1.0 · © 2026 Bricolage</span>
+  <span>Prefer spreadsheets? <a href="#" id="sheetsLink">Get the Google Sheets edition</a></span>
+</footer>
+
+<script>
+"use strict";
+/* ============ VAULT (single source of truth) ============ */
+const VAULT = {"meta": {"product": "The Report Card Suite — Smart Feedback Engine", "brand": "Bricolage", "version": "1.1", "source": "The_Report_Card_Suite.xlsx Vault tab, exported 2026-07-09", "notes": "Tokens normalized to {name} {subject} {Subject} {object} {possessive} {reflexive}. Fixes latent bug: original formulas never substituted [him/she/they], [him/her/them], [them]. variants arrays support future multi-variant rotation."}, "config": {"levels": {"4": "Exceeding", "3": "Meeting", "2": "Approaching", "1": "Beginning"}, "tones": ["Standard", "Warm"], "pronouns": {"he": {"subject": "he", "object": "him", "possessive": "his", "reflexive": "himself"}, "she": {"subject": "she", "object": "her", "possessive": "her", "reflexive": "herself"}, "they": {"subject": "they", "object": "them", "possessive": "their", "reflexive": "themselves"}}, "placeholders": ["{name}", "{subject}", "{Subject}", "{object}", "{possessive}", "{reflexive}"], "iepClause": ", while utilizing provided classroom accommodations.", "characterLimitPresets": {"PowerSchool": 0, "Skyward": 0, "Infinite Campus": 0, "Custom": 0}}, "subjects": {"Behavior/SEL": {"Organization": {"Standard": {"4": ["{name} is a leader who keeps {possessive} desk tidy."], "3": ["{name} is prepared for class and keeps {possessive} materials organized."], "2": ["{name} is learning to manage {possessive} belongings, though {subject} often needs reminders to keep {possessive} desk tidy."], "1": ["{name} is working on basic organizational habits and benefits from support to locate {possessive} materials."]}, "Warm": {"4": ["It is wonderful to see how {name} comes to class prepared and takes such pride in organizing {possessive} materials."], "3": ["{name} is making wonderful progress in coming to class prepared and is developing strong habits for keeping {possessive} materials neat and organized. It’s been great to see this growth!"], "2": ["{name} is learning how to take care of {possessive} belongings and is making steady progress. With gentle reminders, {subject} is building helpful habits for keeping {possessive} desk tidy and ready for learning."], "1": ["{name} is continuing to grow in developing basic organizational skills. With a little extra support, {subject} is learning how to find and manage {possessive} materials more independently each day."]}}, "Collaboration": {"Standard": {"4": ["{name} is a natural leader during group tasks, consistently seeking out ways to support {possessive} peers."], "3": ["{name} works effectively within a team, reliably contributing ideas and listening to the perspectives of {possessive} classmates."], "2": ["{name} is beginning to participate more in group activities, though {subject} still benefits from teacher prompts to share {possessive} ideas."], "1": ["While {name} enjoys the social aspect of school, {subject} is working on staying focused on shared goals during collaborative work."]}, "Warm": {"4": ["{name} is a wonderful natural leader during group tasks, often looking for thoughtful ways to support and uplift {possessive} peers. {Subject} helps create a positive and productive team environment."], "3": ["{name} works very well within a team setting, consistently sharing meaningful ideas and showing respect by listening carefully to the perspectives of classmates. {Subject} is a valued member of any group."], "2": ["{name} is beginning to participate more actively in group activities, which is great to see! With gentle teacher prompts, {subject} is growing in confidence and learning to share {possessive} ideas more independently."], "1": ["{name} truly enjoys the social side of school and brings positive energy to group work. {Subject} is continuing to grow in staying focused on shared goals during collaborative tasks, and is making steady progress in this area."]}}, "Self-Regulation": {"Standard": {"4": ["{name} demonstrates exceptional self-awareness, consistently managing {possessive} time and emotions even during complex tasks."], "3": ["{name} shows a steady ability to regulate {possessive} focus, effectively using classroom strategies to stay on track."], "2": ["{name} is developing the ability to stay focused, though {subject} occasionally requires a teacher check-in to manage distractions."], "1": ["{name} is working toward better self-regulation and benefits from a structured environment to manage transitions."]}, "Warm": {"4": ["{name} shows impressive self-awareness and does a wonderful job managing {possessive} time and emotions, even when tasks feel challenging. This maturity truly supports {possessive} success in the classroom."], "3": ["{name} demonstrates a steady ability to regulate {possessive} focus and thoughtfully uses classroom strategies to stay on track. It’s great to see {possessive} growing independence and responsibility."], "2": ["{name} is continuing to build strong focus skills. While {subject} may occasionally need a quick teacher check-in to manage distractions, {subject} is making positive progress in staying engaged with learning."], "1": ["{name} is working toward stronger self-regulation skills and responds well to a structured environment, especially during transitions. With consistent routines and support, {subject} is growing more confident each day."]}}, "Independent Work": {"Standard": {"4": ["{name} displays remarkable academic stamina, consistently diving into tasks immediately and maintaining high-quality focus."], "3": ["{name} follows instructions carefully and works steadily, showing the ability to problem-solve before seeking assistance."], "2": ["{name} is building {possessive} ability to work without direct supervision, though {subject} requires check-ins to stay on task."], "1": ["{name} is most successful when tasks are broken into small steps and {subject} is encouraged to begin tasks independently."]}, "Warm": {"4": ["{name} demonstrates impressive academic stamina, readily diving into tasks and sustaining thoughtful, high-quality focus throughout {possessive} work. It’s wonderful to see such dedication and perseverance."], "3": ["{name} listens carefully to instructions and approaches tasks with steady effort. {Subject} shows growing confidence in problem-solving and often works through challenges independently before seeking support."], "2": ["{name} is continuing to build {possessive} ability to work independently. With occasional check-ins, {subject} is learning to stay focused and take greater ownership of {possessive} tasks."], "1": ["{name} thrives when tasks are broken into manageable steps and benefits from encouragement to begin work independently. With this support, {subject} is making steady and meaningful progress."]}}, "Initiative": {"Standard": {"4": ["{name} is a self-motivated learner who consistently seeks out extension opportunities and advocates for {possessive} own learning needs."], "3": ["{name} shows a proactive attitude toward learning, often asking insightful questions and showing a willingness to try new challenges."], "2": ["{name} is beginning to show more curiosity, though {subject} often waits for teacher direction before starting unfamiliar tasks."], "1": ["{name} is encouraged to take more risks in {possessive} learning and currently relies on guided instruction to begin the inquiry process."]}, "Warm": {"4": ["{name} is a highly self-motivated learner who eagerly seeks out opportunities to extend {possessive} thinking. {Subject} thoughtfully advocates for {possessive} own learning needs and takes wonderful ownership of {possessive} growth."], "3": ["{name} approaches learning with a proactive and positive attitude. {Subject} frequently asks insightful questions and shows a genuine willingness to take on new challenges, which enriches our classroom community."], "2": ["{name} is beginning to show growing curiosity in new learning experiences. While {subject} may sometimes wait for teacher guidance when starting unfamiliar tasks, {subject} is building confidence and becoming more comfortable taking those first steps."], "1": ["{name} is encouraged to continue taking thoughtful risks in {possessive} learning. With guided instruction, {subject} engages well in the inquiry process, and with continued support, {subject} will grow more confident initiating learning independently."]}}}, "STEM / Logic": {"Problem Solving": {"Standard": {"4": ["{name} effectively applies various strategies to solve complex problems independently."], "3": ["{name} is meeting expectations in problem-solving and is beginning to apply various strategies independently."], "2": ["{name} is developing problem-solving skills and is learning to select appropriate strategies with teacher support."], "1": ["{name} requires significant teacher guidance to begin problem-solving tasks and is working on identifying simple strategies."]}, "Warm": {"4": ["It is impressive to watch {name} tackle complex challenges with such a resourceful and determined spirit."], "3": ["It is great to see {name} growing more confident in {possessive} ability to work through new challenges and find solutions."], "2": ["{name} is showing growth in how {subject} approaches new challenges, and we are working together to build {possessive} confidence in choosing the right tools for the job."], "1": ["We are working closely with {name} to help {object} feel more comfortable when facing a challenge and to build {possessive} toolkit of strategies."]}}, "Reasoning": {"Standard": {"4": ["{name} consistently provides clear, logical explanations for {possessive} mathematical and scientific conclusions."], "3": ["{name} can explain the reasoning behind {possessive} work with occasional prompting for clarity."], "2": ["{name} is learning to articulate the steps taken in {possessive} work but often requires support to explain the logic used."], "1": ["{name} struggles to explain the steps taken to solve a problem and requires significant teacher support to connect concepts to results."]}, "Warm": {"4": ["I am so pleased with how clearly {name} can explain the 'why' behind {possessive} work, showing a deep understanding of the concepts."], "3": ["I enjoy hearing {name} explain {possessive} thinking process, and we are working on making those explanations even more detailed."], "2": ["{name} is practicing how to share {possessive} thoughts aloud, and I am supporting {object} in connecting {possessive} actions to the final result."], "1": ["We are working with {name} on \"thinking out loud,\" helping {object} find the right words to describe how {subject} reached an answer."]}}, "Accuracy": {"Standard": {"4": ["{name} demonstrates high levels of precision and pays close attention to detail in all technical tasks."], "3": ["{name} generally produces accurate work and is learning to check {possessive} results for minor errors."], "2": ["{name} is working toward greater precision and frequently requires reminders to verify the correctness of {possessive} work."], "1": ["{name} frequently produces work with significant errors and requires constant redirection to check for correctness and attention to detail."]}, "Warm": {"4": ["{name} takes such great care with {possessive} work, and it really shows in the accuracy and polish of {possessive} final results."], "3": ["{name} is doing a solid job with the precision of {possessive} work, and we are focusing on a final 'double-check' to catch small details."], "2": ["{name} is showing effort in {possessive} technical tasks, and our current goal is to help {object} slow down to ensure every detail is correct."], "1": ["{name} is full of great ideas, and our current focus is helping {object} slow down just a bit to make sure every detail is exactly where it needs to be."]}}}, "Literacy & Communication": {"Comprehension": {"Standard": {"4": ["{name} demonstrates a deep understanding of complex information and can synthesize ideas across various formats."], "3": ["{name} understands key ideas from various texts and can identify supporting details with consistency."], "2": ["{name} is developing basic comprehension skills and requires support to grasp more abstract or complex concepts."], "1": ["{name} struggles to identify main ideas and requires significant support to comprehend grade-level materials."]}, "Warm": {"4": ["It is a pleasure to see how deeply {name} connects with what {subject} is learning, often picking up on subtle details others might miss."], "3": ["It is wonderful to see {name} building {possessive} confidence in understanding new stories and sharing what {subject} has learned."], "2": ["We are working with {name} to strengthen {possessive} understanding of new information, focusing on identifying the most important ideas."], "1": ["We are working closely with {name} to help {object} find the 'big ideas' in what we read, using pictures and discussion to build {possessive} understanding."]}}, "Expression": {"Standard": {"4": ["{name} communicates ideas with exceptional clarity, structure, and professional tone in both written and oral work."], "3": ["{name} expresses ideas clearly and follows a basic organizational structure in {possessive} work."], "2": ["{name} is learning to structure {possessive} thoughts and needs assistance to communicate ideas clearly and sequentially."], "1": ["{name} has difficulty communicating ideas clearly and requires one-on-one assistance to begin any expressive task."]}, "Warm": {"4": ["{name} has a wonderful way with words, consistently sharing {possessive} ideas in a way that is clear, organized, and engaging."], "3": ["{name} is doing a great job of sharing {possessive} thoughts, and we are working on adding even more descriptive details to {possessive} work."], "2": ["{name} has great ideas to share, and we are practicing how to put them in a logical order so that {possessive} message is easy for others to follow."], "1": ["{name} has a lot to say, and we are working on different ways—like drawing or speaking—to help {object} get those great ideas out."]}}, "Critical Thinking": {"Standard": {"4": ["{name} consistently evaluates information with a critical eye, identifying bias and drawing sophisticated connections between different texts."], "3": ["{name} is able to analyze information to draw logical conclusions and is beginning to support {possessive} interpretations with specific examples."], "2": ["{name} is developing the ability to analyze information but often requires prompting to move beyond a literal understanding of the material."], "1": ["{name} struggles to make connections between ideas and requires significant teacher support to interpret information beyond the surface level."]}, "Warm": {"4": ["It is a pleasure to see how {name} looks beneath the surface of what {subject} reads, always asking the \"big\" questions that push our class discussions further."], "3": ["{name} is doing a great job of thinking for {reflexive}, and I am seeing {object} grow more confident in sharing {possessive} unique perspective on what we study."], "2": ["{name} is working on looking for the \"hidden meanings\" in stories, and we are practicing how to explain the reasons behind {possessive} thoughts."], "1": ["We are encouraging {name} to wonder more about the \"why\" behind what we read, helping {object} build the habit of asking questions about the world."]}}, "Vocabulary/Language": {"Standard": {"4": ["{name} utilizes an extensive and precise vocabulary, consistently selecting the most effective language to communicate complex ideas."], "3": ["{name} uses subject-specific terminology correctly and is expanding {possessive} vocabulary to express more detailed thoughts."], "2": ["{name} is building a foundation of key terms but often relies on repetitive or simple language to express {reflexive}."], "1": ["{name} has difficulty using grade-level vocabulary and requires frequent assistance to find the words needed to express basic concepts."]}, "Warm": {"4": ["{name} has a gift for language; {subject} uses such descriptive and professional words that {possessive} work is truly a joy to read."], "3": ["I am impressed by how {name} is starting to use our new \"challenge words\" in {possessive} writing and speaking—it really shows {possessive} growth!"], "2": ["{name} is working on adding new words to {possessive} toolkit, and we are practicing using more specific language to describe {possessive} great ideas."], "1": ["We are playing with new words every day to help {name} feel more comfortable sharing {possessive} voice and building {possessive} communication confidence."]}}}, "Humanities / Inquiry": {"Inquiry & Research": {"Standard": {"4": ["{name} demonstrates exceptional skill in formulating complex questions and conducting thorough, independent research."], "3": ["{name} is able to locate relevant information using provided resources and is developing a consistent research process."], "2": ["{name} is learning to use research tools but requires significant teacher guidance to stay on task and find relevant sources."], "1": ["{name} struggles to stay focused on a research topic and requires frequent redirection to use academic resources effectively."]}, "Warm": {"4": ["It is wonderful to see how {name} dives into new topics with such curiosity and a real talent for finding deep answers."], "3": ["I am pleased with how {name} is learning to find answers to {possessive} own questions through careful research and investigation."], "2": ["{name} is growing more curious every day, and we are working together to help {object} find the best ways to search for information."], "1": ["{name} is full of wonder about the world, and we are working together to help {object} learn how to channel that curiosity into finding facts."]}}, "Perspective-Taking": {"Standard": {"4": ["{name} consistently displays a deep understanding of different viewpoints and can analyze historical events from multiple perspectives."], "3": ["{name} can identify different points of view and is beginning to explain why people might have varying perspectives."], "2": ["{name} is beginning to recognize different viewpoints but often needs prompting to see beyond {possessive} own perspective."], "1": ["{name} finds it challenging to consider viewpoints other than {possessive} own and requires guided discussion to recognize diversity in thought."]}, "Warm": {"4": ["I am so impressed by {name}'s empathy and {possessive} ability to truly understand how others might see the world."], "3": ["{name} is showing great growth in {possessive} ability to think about how others feel and why they might see things differently than {subject} does."], "2": ["{name} is practicing how to step into someone else's shoes, and we are working on noticing how different people might feel about the same event."], "1": ["We are encouraging {name} to listen to the stories and ideas of others, helping {object} build a kinder understanding of the world around {object}."]}}, "Evidence-Based Argument": {"Standard": {"4": ["{name} constructs exceptionally compelling arguments by seamlessly integrating high-quality evidence from multiple primary and secondary sources."], "3": ["{name} is able to support {possessive} conclusions with relevant facts and is learning to distinguish between strong and weak evidence."], "2": ["{name} is beginning to use evidence in {possessive} work but requires assistance to connect specific facts to {possessive} overall argument."], "1": ["{name} struggles to provide factual support for {possessive} claims and relies heavily on personal opinion rather than provided research."]}, "Warm": {"4": ["It is impressive to see how {name} uses facts to build such a strong case; {subject} clearly understands how to support {possessive} big ideas with real evidence."], "3": ["{name} is doing a great job of using what {subject} has learned to back up {possessive} opinions during our class discussions."], "2": ["{name} has some great points to make, and we are working on finding the right \"proof\" from our lessons to help others understand {possessive} thinking."], "1": ["We are encouraging {name} to look for the \"why\" in our history lessons, helping {object} see how facts can make {possessive} ideas even stronger."]}}, "Civic Awareness": {"Standard": {"4": ["{name} demonstrates a profound understanding of civic responsibility and consistently seeks ways to contribute positively to the school and local community."], "3": ["{name} recognizes {possessive} role within the community and follows established social and civic norms with consistency."], "2": ["{name} is beginning to understand classroom and community rules but often requires reminders to act with civic responsibility."], "1": ["{name} struggles to follow community expectations and requires significant guidance to understand {possessive} role and responsibilities within a group."]}, "Warm": {"4": ["{name} has such a heart for community; {subject} truly understands what it means to be a responsible citizen and a helpful leader."], "3": ["It is great to see {name} taking {possessive} role in our classroom community seriously and looking for ways to be a helpful participant."], "2": ["{name} is learning how {possessive} actions affect our classroom community, and we are working on ways {subject} can be a helpful friend to everyone."], "1": ["We are spending time talking with {name} about how we all help each other in our class, focusing on simple ways {subject} can be a kind and active participant."]}}}, "The Arts & Expression": {"Creative Process": {"Standard": {"4": ["{name} demonstrates a highly sophisticated creative process, taking an initial concept through multiple stages of refinement to reach a polished final work."], "3": ["{name} follows the creative process from planning to completion and is beginning to incorporate self-reflection into {possessive} work."], "2": ["{name} is beginning to develop {possessive} own ideas but often needs encouragement to move beyond the initial sketch or first draft."], "1": ["{name} struggles to stay engaged with a project and requires significant prompting to move past the initial brainstorming phase."]}, "Warm": {"4": ["It is a joy to see how {name} breathes life into {possessive} ideas, showing true dedication to seeing a project through from the first spark to the final masterpiece."], "3": ["I am enjoying watching {name} develop {possessive} ideas, and it is wonderful to see {object} take pride in finishing a project."], "2": ["{name} has a wonderful imagination, and we are working on helping {object} find the patience to keep working on a piece until it is truly finished."], "1": ["{name} has many creative sparks, and we are working together to help {object} find the focus needed to turn those sparks into a completed piece."]}}, "Technical Skill": {"Standard": {"4": ["{name} exhibits exceptional technical proficiency and mastery of the tools and techniques specific to this artistic medium."], "3": ["{name} demonstrates consistent use of the required techniques and is learning to select the right tools for specific artistic goals."], "2": ["{name} is working on the fundamental techniques of the medium and requires teacher assistance to use tools safely and effectively."], "1": ["{name} finds it difficult to apply the demonstrated techniques and requires constant supervision for the safe and proper use of materials."]}, "Warm": {"4": ["{name} shows such impressive control and skill with {possessive} craft; it is clear that {subject} has put in the work to master these techniques."], "3": ["{name} is becoming quite proficient with our artistic tools, and I can see {possessive} confidence growing with every project {subject} completes."], "2": ["{name} is making progress in learning how to use our artistic tools, and I am supporting {object} in building the \"muscle memory\" needed for this skill."], "1": ["{name} is at the very beginning of {possessive} journey with these techniques, and we are focusing on the basics of how to handle our materials safely and effectively."]}}, "Artistic Reflection": {"Standard": {"4": ["{name} provides insightful, sophisticated critiques of {possessive} own work and the work of others, using specific artistic terminology."], "3": ["{name} can identify strengths and areas for improvement in {possessive} work and uses artistic criteria to explain {possessive} reasoning."], "2": ["{name} is learning to describe artistic choices but requires prompts to move beyond simple \"like\" or \"dislike\" statements."], "1": ["{name} finds it difficult to reflect on {possessive} work and requires significant teacher support to identify any specific artistic choices."]}, "Warm": {"4": ["{name} has a wonderful eye for detail; I am so impressed by how thoughtfully {subject} can talk about what makes a piece of art truly special."], "3": ["It is great to hear {name} talk so thoughtfully about {possessive} art; {subject} is doing a wonderful job of noticing what makes {possessive} work unique."], "2": ["{name} is practicing how to talk about art, and we are working on finding the right words to describe the feelings or colors {subject} notices."], "1": ["We are helping {name} find the words to share how {subject} feels about {possessive} creations, focusing on noticing colors, shapes, and the \"story\" in {possessive} art."]}}, "Interpretation": {"Standard": {"4": ["{name} brings a unique and expressive personal voice to {possessive} work, consistently infusing performances or creations with deep meaning."], "3": ["{name} is developing a personal style and consistently attempts to convey specific emotions or themes through {possessive} artistic choices."], "2": ["{name} is beginning to explore personal expression in {possessive} work but often relies on imitating existing styles or examples."], "1": ["{name} focuses primarily on the literal completion of tasks and shows little attempt to include personal expression or creative variation."]}, "Warm": {"4": ["{name} doesn't just make art; {subject} puts {possessive} whole heart into it. It is beautiful to see {possessive} personal \"soul\" shine through in {possessive} work."], "3": ["{name} is starting to really \"speak\" through {possessive} art, and I love seeing the personal touches {subject} adds to every piece {subject} creates."], "2": ["{name} is doing a great job learning the basics, and I am encouraging {object} to take a few risks and add {possessive} own unique \"spark\" to {possessive} next project."], "1": ["{name} is doing a good job following directions, and our next step is to help {object} feel brave enough to add {possessive} own special \"spark\" to {possessive} work."]}}}, "Physical & Technical Skills": {"Kinesthetic Mastery": {"Standard": {"4": ["{name} demonstrates exceptional coordination and precise execution of complex physical or technical movements."], "3": ["{name} is meeting expectations for coordination and is able to execute most physical or technical tasks with steady progress."], "2": ["{name} is developing fundamental coordination but requires guided practice to execute movements with consistent accuracy."], "1": ["{name} finds it challenging to coordinate movements and requires one-on-one support to participate safely in physical or technical activities."]}, "Warm": {"4": ["It is impressive to see the level of control and grace {name} brings to {possessive} movements; {subject} has clearly mastered these skills."], "3": ["I am so pleased with how {name} is developing {possessive} physical skills; it is great to see {object} getting more comfortable with these movements every day."], "2": ["{name} is working hard on {possessive} physical skills, and I am seeing {object} get a little more coordinated and confident with every practice."], "1": ["{name} is at the start of building {possessive} coordination, and we are focusing on simple, fun ways to help {object} feel more confident in {possessive} movements."]}}, "Responsibility & Safety": {"Standard": {"4": ["{name} consistently prioritizes safety and demonstrates a thorough understanding of the proper use and care of all equipment."], "3": ["{name} generally follows safety protocols and uses equipment as directed, though {subject} occasionally needs a reminder during complex tasks."], "2": ["{name} is learning the safety protocols but requires frequent reminders to handle equipment properly and respect the shared space."], "1": ["{name} struggles to follow safety guidelines and requires constant supervision to ensure the safety of {reflexive} and others."]}, "Warm": {"4": ["I can always count on {name} to lead by example when it comes to safety; {subject} treats our tools and environment with great respect."], "3": ["{name} is doing a solid job of looking out for {reflexive} and others by following our safety rules and taking care of our equipment."], "2": ["We are focusing on helping {name} remember the 'rules of the room' so that {subject} and {possessive} classmates can stay safe while learning new skills."], "1": ["We are working very closely with {name} to help {object} understand why our safety rules are so important for everyone in the room."]}}, "Strategy & Game Sense": {"Standard": {"4": ["{name} displays an advanced understanding of tactical concepts and can adapt {possessive} strategy in real-time to meet changing challenges."], "3": ["{name} demonstrates a solid understanding of the rules and is beginning to apply basic strategies during games or technical tasks."], "2": ["{name} is learning the basic rules of the activity but frequently requires teacher redirection to apply them during active play or tasks."], "1": ["{name} struggles to follow the rules of the activity and requires constant guidance to understand the basic objectives of the task."]}, "Warm": {"4": ["{name} is a brilliant strategist; {subject} truly understands the \"logic\" of the game and always seems to be two steps ahead!"], "3": ["{name} is becoming a real \"student of the game,\" showing {subject} can think ahead and make smart choices during our activities."], "2": ["{name} is getting the hang of how our games and tools work, and we are practicing together so {subject} feels more confident in knowing what to do next."], "1": ["We are focusing on the \"how and why\" of our activities to help {name} feel more included and successful when playing or working with others."]}}, "Growth Mindset (Skill-Based)": {"Standard": {"4": ["{name} displays remarkable resilience, consistently viewing technical challenges as opportunities to practice and improve {possessive} mastery."], "3": ["{name} maintains a positive attitude when learning new skills and is willing to repeat tasks until a desired level of proficiency is met."], "2": ["{name} is beginning to show persistence but often becomes discouraged when a technical or physical task is not mastered immediately."], "1": ["{name} gives up easily when faced with physical or technical difficulty and requires significant emotional support to re-engage with the task."]}, "Warm": {"4": ["I am so inspired by {name}'s \"never give up\" attitude; {subject} tackles every new challenge with a smile and incredible determination."], "3": ["{name} is doing a great job of staying positive even when things get tough, showing {subject} understands that effort leads to success."], "2": ["{name} is learning that \"practice makes progress,\" and I am supporting {object} in staying positive even when a new skill feels a bit tricky."], "1": ["We are working on building {name}'s \"bravery muscles,\" helping {object} see that making mistakes is just a normal part of learning something new."]}}}}};
+
+/* ============ helpers ============ */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const SUBJECTS = Object.keys(VAULT.subjects);
+const pillarsOf = subj => Object.keys(VAULT.subjects[subj] || {});
+const IEP_CLAUSE = VAULT.config.iepClause;
+const VARIATIONS = [
+  {key:"warm", label:"Warm & Personal", add:"Take these points and make them sound more nurturing and encouraging for a parent-teacher conference.", why:"For students who made great social progress, or families who appreciate a softer touch."},
+  {key:"brief", label:"Concise / Brief", add:"Shorten this comment to exactly 400 characters while keeping all the key data points.", why:"For report systems with strict, small character limits."},
+  {key:"growth", label:"Growth Mindset", add:"Identify any areas where the student is struggling or needs support, and reframe those points to focus on growth, future potential, and clear next steps.", why:"Best for struggling students — potential and next steps, not just the deficit."},
+  {key:"ell", label:"ESL/ELL Friendly", add:"Simplify the vocabulary so this comment is easily understood by families who speak English as a second language.", why:"Ensures every family can clearly celebrate their child's wins."}
+];
+
+function fillTokens(sentence, name, pronounKey){
+  const p = VAULT.config.pronouns[pronounKey] || VAULT.config.pronouns.they;
+  return sentence
+    .replaceAll("{name}", name)
+    .replaceAll("{Subject}", cap(p.subject))
+    .replaceAll("{subject}", p.subject)
+    .replaceAll("{object}", p.object)
+    .replaceAll("{possessive}", p.possessive)
+    .replaceAll("{reflexive}", p.reflexive);
+}
+function getSentence(subject, pillar, level, tone){
+  const arr = VAULT.subjects[subject]?.[pillar]?.[tone]?.[String(level)];
+  return (arr && arr.length) ? arr[0] : "";
+}
+function assemble(sentences, iep){
+  let t = sentences.filter(Boolean).join(" ").replace(/\s+/g," ").trim();
+  if (!t) return "";
+  if (iep) t = t.replace(/\.\s*$/, "") + IEP_CLAUSE;
+  return t;
+}
+function charLimit(){
+  const v = $("#limitSel").value;
+  if (v === "custom") return parseInt($("#limitCustom").value, 10) || 0;
+  return parseInt(v, 10) || 0;
+}
+function tone(){ return $("#toneSel").value; }
+async function copyText(text, flagEl){
+  try { await navigator.clipboard.writeText(text); }
+  catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+  }
+  if (flagEl){ flagEl.hidden = false; setTimeout(()=>flagEl.hidden = true, 1600); }
+}
+function anonymize(comment, name){
+  if (!name) return comment;
+  return comment.replaceAll(name, "[Student]");
+}
+function buildMasterPrompt(comment, name, toneName){
+  const lim = charLimit() || 800;
+  return `Rewrite this into a warm, professional report card comment for [Student]. Keep it under ${lim} characters and maintain a ${toneName.toLowerCase()} tone. Do not invent details that are not in the context. Include the following context:\n\n"${anonymize(comment, name)}"`;
+}
+
+/* ============ state + persistence ============ */
+const LS_KEY = "rcs_state_v1";
+let state = {
+  tone:"Standard", limit:"", limitCustom:"",
+  dash:{ name:"", pronoun:"they", iep:false, lines:[] },
+  cls:{ subject:SUBJECTS[0], pillars:[], rows:[] }
+};
+function defaultLine(){ return { subject:SUBJECTS[0], pillar:pillarsOf(SUBJECTS[0])[0], level:0, on:true }; }
+function defaultRow(){ return { name:"", pronoun:"", levels:["","","",""], iep:false }; }
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      $("#saveStatus").textContent = "Saved just now.";
+    } catch(e){ $("#saveStatus").textContent = "Autosave unavailable in this browser."; }
+  }, 350);
+}
+function load(){
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw){
+      const s = JSON.parse(raw);
+      if (s && s.dash && s.cls) state = s;
+    }
+  } catch(e){ /* start fresh */ }
+  if (!state.dash.lines.length){
+    state.dash.lines = [defaultLine(), defaultLine(), defaultLine()];
+    state.dash.lines[1].subject = "Behavior/SEL";
+    state.dash.lines[1].pillar = pillarsOf("Behavior/SEL")[0];
+  }
+  if (!state.cls.pillars.length) state.cls.pillars = pillarsOf(state.cls.subject).slice(0,4);
+  while (state.cls.rows.length < 10) state.cls.rows.push(defaultRow());
+}
+
+/* ============ dashboard rendering ============ */
+function renderSkillLines(){
+  const host = $("#skillLines");
+  host.innerHTML = "";
+  state.dash.lines.forEach((line, i) => {
+    const row = document.createElement("div");
+    row.className = "skill-line" + (line.on ? "" : " off");
+
+    const onWrap = document.createElement("label");
+    onWrap.className = "toggle";
+    const on = document.createElement("input");
+    on.type = "checkbox"; on.checked = line.on;
+    on.setAttribute("aria-label", "Include this skill line");
+    on.addEventListener("change", ()=>{ line.on = on.checked; refreshDash(); });
+    onWrap.appendChild(on);
+
+    const subj = document.createElement("select");
+    subj.setAttribute("aria-label", "Subject");
+    SUBJECTS.forEach(s => subj.add(new Option(s, s, false, s === line.subject)));
+    subj.addEventListener("change", ()=>{
+      line.subject = subj.value;
+      line.pillar = pillarsOf(line.subject)[0];
+      renderSkillLines(); refreshDash();
+    });
+
+    const pil = document.createElement("select");
+    pil.setAttribute("aria-label", "Pillar");
+    pillarsOf(line.subject).forEach(p => pil.add(new Option(p, p, false, p === line.pillar)));
+    pil.addEventListener("change", ()=>{ line.pillar = pil.value; refreshDash(); });
+
+    const lv = document.createElement("div");
+    lv.className = "level-group";
+    lv.setAttribute("role","group"); lv.setAttribute("aria-label","Level 1 to 4");
+    [1,2,3,4].forEach(n => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "level-btn"; b.textContent = n;
+      b.setAttribute("aria-pressed", String(line.level === n));
+      b.addEventListener("click", ()=>{
+        line.level = (line.level === n) ? 0 : n;
+        $$(".level-btn", lv).forEach((x,xi)=>x.setAttribute("aria-pressed", String(line.level === xi+1)));
+        refreshDash();
+      });
+      lv.appendChild(b);
+    });
+
+    const rm = document.createElement("button");
+    rm.type = "button"; rm.className = "remove-line"; rm.textContent = "✕";
+    rm.setAttribute("aria-label","Remove this skill line");
+    rm.addEventListener("click", ()=>{ state.dash.lines.splice(i,1); renderSkillLines(); refreshDash(); });
+
+    row.append(onWrap, subj, pil, lv, rm);
+    host.appendChild(row);
+  });
+}
+
+function dashComment(){
+  const d = state.dash;
+  if (!d.name) return "";
+  const sentences = d.lines
+    .filter(l => l.on && l.level >= 1)
+    .map(l => fillTokens(getSentence(l.subject, l.pillar, l.level, tone()), d.name, d.pronoun));
+  return assemble(sentences, d.iep);
+}
+
+function refreshDash(){
+  const c = dashComment();
+  const prev = $("#dPreview"), stamp = $("#dCount");
+  if (c){
+    prev.textContent = c; prev.classList.remove("empty");
+  } else {
+    prev.textContent = state.dash.name
+      ? "Score at least one included skill line (tap a 1–4) to generate the comment."
+      : "Type a student name, then score each skill line to build the comment.";
+    prev.classList.add("empty");
+  }
+  const lim = charLimit();
+  stamp.textContent = c.length + " chars" + (lim ? " / " + lim : "");
+  stamp.classList.toggle("over", lim > 0 && c.length > lim);
+  $("#dCopyBtn").disabled = !c;
+  if (!$("#dAiPanel").hidden) refreshDashPrompt();
+  save();
+}
+
+let dActiveVariations = new Set();
+function refreshDashPrompt(){
+  const c = dashComment();
+  let prompt = c ? buildMasterPrompt(c, state.dash.name, tone()) : "Build a comment first — the prompt appears here.";
+  dActiveVariations.forEach(k => {
+    const v = VARIATIONS.find(x => x.key === k);
+    if (v) prompt += "\n\n" + v.add;
+  });
+  if ($("#dDisclaimer").checked)
+    prompt += '\n\nEnd with this exact sentence: "This comment was drafted with a structured feedback system and refined with AI for clarity."';
+  $("#dPromptBox").textContent = prompt;
+  $("#dCopyPromptBtn").disabled = !c;
+}
+function renderVariationButtons(host, activeSet, onChange){
+  host.innerHTML = "";
+  VARIATIONS.forEach(v => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "variation";
+    b.setAttribute("aria-pressed", String(activeSet.has(v.key)));
+    b.innerHTML = "<b>" + v.label + "</b><span>" + v.why + "</span>";
+    b.addEventListener("click", ()=>{
+      activeSet.has(v.key) ? activeSet.delete(v.key) : activeSet.add(v.key);
+      b.setAttribute("aria-pressed", String(activeSet.has(v.key)));
+      onChange();
+    });
+    host.appendChild(b);
+  });
+}
+
+/* ============ class builder rendering ============ */
+function renderCbSetup(){
+  const subjSel = $("#cbSubject");
+  subjSel.innerHTML = "";
+  SUBJECTS.forEach(s => subjSel.add(new Option(s, s, false, s === state.cls.subject)));
+  renderPillarPickers();
+  renderPillarHeaders();
+}
+function renderPillarPickers(){
+  const host = $("#cbPillars");
+  host.innerHTML = "";
+  const avail = pillarsOf(state.cls.subject);
+  for (let i = 0; i < 4; i++){
+    const sel = document.createElement("select");
+    sel.setAttribute("aria-label","Pillar " + (i+1));
+    sel.add(new Option("— none —",""));
+    avail.forEach(p => {
+      const takenElsewhere = state.cls.pillars.some((x, xi) => xi !== i && x === p);
+      if (!takenElsewhere || state.cls.pillars[i] === p)
+        sel.add(new Option(p, p, false, state.cls.pillars[i] === p));
+    });
+    sel.addEventListener("change", ()=>{
+      state.cls.pillars[i] = sel.value;
+      renderPillarPickers(); renderPillarHeaders(); refreshClass();
+    });
+    host.appendChild(sel);
+  }
+}
+function renderPillarHeaders(){
+  $$(".pillar-h").forEach((th, i) => { th.textContent = state.cls.pillars[i] || "P" + (i+1); });
+}
+function renderRows(){
+  const body = $("#cbBody");
+  body.innerHTML = "";
+  state.cls.rows.forEach((row, ri) => {
+    const tr = document.createElement("tr");
+
+    const tdName = document.createElement("td");
+    const inName = document.createElement("input");
+    inName.type = "text"; inName.value = row.name; inName.placeholder = "Student name";
+    inName.autocomplete = "off";
+    inName.addEventListener("input", ()=>{ row.name = inName.value.trim(); refreshClass(); });
+    tdName.appendChild(inName);
+
+    const tdPro = document.createElement("td");
+    const selPro = document.createElement("select");
+    selPro.setAttribute("aria-label","Pronouns");
+    [["",""],["they","they"],["she","she"],["he","he"]].forEach(([v,l]) =>
+      selPro.add(new Option(l || "—", v, false, row.pronoun === v)));
+    selPro.addEventListener("change", ()=>{ row.pronoun = selPro.value; refreshClass(); });
+    tdPro.appendChild(selPro);
+
+    const lvCells = [0,1,2,3].map(pi => {
+      const td = document.createElement("td");
+      const s = document.createElement("select");
+      s.className = "lv-select";
+      s.setAttribute("aria-label", (state.cls.pillars[pi] || "Pillar " + (pi+1)) + " level");
+      [["","—"],["1","1"],["2","2"],["3","3"],["4","4"]].forEach(([v,l]) =>
+        s.add(new Option(l, v, false, String(row.levels[pi]) === v)));
+      s.addEventListener("change", ()=>{ row.levels[pi] = s.value; refreshClass(); });
+      td.appendChild(s);
+      return td;
+    });
+
+    const tdIep = document.createElement("td");
+    const cbIep = document.createElement("input");
+    cbIep.type = "checkbox"; cbIep.checked = row.iep;
+    cbIep.setAttribute("aria-label","Include IEP/504 language");
+    cbIep.style.accentColor = "var(--pine)";
+    cbIep.addEventListener("change", ()=>{ row.iep = cbIep.checked; refreshClass(); });
+    tdIep.appendChild(cbIep);
+
+    const tdCmt = document.createElement("td");
+    tdCmt.className = "cmt-cell";
+    tdCmt.innerHTML = '<div class="cmt-text placeholder">—</div>' +
+      '<div class="cmt-meta"><span class="cmt-count"></span>' +
+      '<button class="mini-btn cmt-copy" type="button">Copy</button>' +
+      '<button class="mini-btn cmt-ai" type="button">AI prompt</button></div>';
+    $(".cmt-copy", tdCmt).addEventListener("click", ()=> copyText(rowComment(row), null));
+    $(".cmt-ai", tdCmt).addEventListener("click", ()=> openClassAi(ri));
+
+    tr.append(tdName, tdPro, ...lvCells, tdIep, tdCmt);
+    body.appendChild(tr);
+  });
+  refreshClass();
+}
+function rowComment(row){
+  if (!row.name || !row.pronoun) return "";
+  const sentences = state.cls.pillars.map((p, i) => {
+    const lv = parseInt(row.levels[i], 10);
+    if (!p || !lv) return "";
+    return fillTokens(getSentence(state.cls.subject, p, lv, tone()), row.name, row.pronoun);
+  });
+  return assemble(sentences, row.iep);
+}
+function refreshClass(){
+  const lim = charLimit();
+  const trs = $$("#cbBody tr");
+  state.cls.rows.forEach((row, ri) => {
+    const tr = trs[ri]; if (!tr) return;
+    const tds = tr.children;
+    const activePillars = state.cls.pillars.filter(Boolean).length;
+    const hasName = !!row.name;
+
+    // flags: name present but pronoun/scores missing
+    tds[1].classList.toggle("flagged", hasName && !row.pronoun);
+    for (let i = 0; i < 4; i++){
+      const needed = hasName && !!state.cls.pillars[i] && !row.levels[i];
+      tds[2+i].classList.toggle("flagged", needed);
+    }
+
+    const c = rowComment(row);
+    const txt = $(".cmt-text", tr), cnt = $(".cmt-count", tr);
+    if (c){
+      txt.textContent = c; txt.classList.remove("placeholder");
+    } else {
+      txt.textContent = hasName ? (row.pronoun ? "Add at least one score." : "Choose pronouns.") : "—";
+      txt.classList.add("placeholder");
+    }
+    cnt.textContent = c ? c.length + " chars" + (lim ? " / " + lim : "") : "";
+    cnt.classList.toggle("over", lim > 0 && c.length > lim);
+    $(".cmt-copy", tr).disabled = !c;
+    $(".cmt-ai", tr).disabled = !c;
+  });
+  save();
+}
+
+/* class AI panel */
+let cActiveVariations = new Set();
+let cAiRowIndex = -1;
+function openClassAi(ri){
+  cAiRowIndex = ri;
+  const row = state.cls.rows[ri];
+  $("#cAiWho").textContent = "for " + (row.name || "this student");
+  $("#cAiPanel").hidden = false;
+  refreshClassPrompt();
+  $("#cAiPanel").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function refreshClassPrompt(){
+  if (cAiRowIndex < 0) return;
+  const row = state.cls.rows[cAiRowIndex];
+  const c = rowComment(row);
+  let prompt = c ? buildMasterPrompt(c, row.name, tone()) : "Complete this student's row first.";
+  cActiveVariations.forEach(k => {
+    const v = VARIATIONS.find(x => x.key === k);
+    if (v) prompt += "\n\n" + v.add;
+  });
+  $("#cPromptBox").textContent = prompt;
+  $("#cCopyPromptBtn").disabled = !c;
+}
+
+/* ============ wiring ============ */
+function wire(){
+  // global
+  $("#toneSel").addEventListener("change", ()=>{ state.tone = tone(); refreshDash(); refreshClass(); });
+  $("#limitSel").addEventListener("change", ()=>{
+    state.limit = $("#limitSel").value;
+    $("#limitCustom").hidden = state.limit !== "custom";
+    refreshDash(); refreshClass();
+  });
+  $("#limitCustom").addEventListener("input", ()=>{ state.limitCustom = $("#limitCustom").value; refreshDash(); refreshClass(); });
+  $("#clearDataBtn").addEventListener("click", ()=>{
+    if (confirm("Clear all saved names, scores, and settings from this device? The sentence library is not affected.")){
+      localStorage.removeItem(LS_KEY); location.reload();
+    }
+  });
+
+  // tabs
+  const showTab = which => {
+    const dash = which === "dash";
+    $("#tabDash").setAttribute("aria-selected", String(dash));
+    $("#tabClass").setAttribute("aria-selected", String(!dash));
+    $("#dashPanel").hidden = !dash;
+    $("#classPanel").hidden = dash;
+  };
+  $("#tabDash").addEventListener("click", ()=>showTab("dash"));
+  $("#tabClass").addEventListener("click", ()=>showTab("class"));
+
+  // dashboard
+  $("#dName").addEventListener("input", ()=>{ state.dash.name = $("#dName").value.trim(); refreshDash(); });
+  $("#dPronoun").addEventListener("change", ()=>{ state.dash.pronoun = $("#dPronoun").value; refreshDash(); });
+  $("#dIep").addEventListener("change", ()=>{ state.dash.iep = $("#dIep").checked; refreshDash(); });
+  $("#addLineBtn").addEventListener("click", ()=>{
+    if (state.dash.lines.length >= 6){ alert("Six skill lines is the maximum — comments longer than that stop reading as personal."); return; }
+    state.dash.lines.push(defaultLine()); renderSkillLines(); refreshDash();
+  });
+  $("#dCopyBtn").addEventListener("click", ()=> copyText(dashComment(), $("#dCopied")));
+  $("#dAiBtn").addEventListener("click", ()=>{
+    const p = $("#dAiPanel");
+    p.hidden = !p.hidden;
+    $("#dAiBtn").setAttribute("aria-expanded", String(!p.hidden));
+    if (!p.hidden) refreshDashPrompt();
+  });
+  $("#dDisclaimer").addEventListener("change", refreshDashPrompt);
+  $("#dCopyPromptBtn").addEventListener("click", ()=> copyText($("#dPromptBox").textContent, $("#dPromptCopied")));
+  renderVariationButtons($("#dVariations"), dActiveVariations, refreshDashPrompt);
+
+  // class builder
+  $("#cbSubject").addEventListener("change", ()=>{
+    state.cls.subject = $("#cbSubject").value;
+    state.cls.pillars = pillarsOf(state.cls.subject).slice(0,4);
+    renderPillarPickers(); renderPillarHeaders(); refreshClass();
+  });
+  $("#addRowsBtn").addEventListener("click", ()=>{
+    for (let i=0;i<5;i++) state.cls.rows.push(defaultRow());
+    renderRows();
+  });
+  $("#copyAllBtn").addEventListener("click", ()=>{
+    const lines = state.cls.rows
+      .map(r => ({ n:r.name, c:rowComment(r) }))
+      .filter(x => x.n && x.c)
+      .map(x => x.n + "\t" + x.c);
+    if (!lines.length){ alert("No completed comments to copy yet."); return; }
+    copyText(lines.join("\n"), $("#allCopied"));
+  });
+  $("#resetClassBtn").addEventListener("click", ()=>{
+    if (confirm("Reset the class? This clears names, pronouns, scores, and IEP toggles. The sentence library is safe.")){
+      state.cls.rows = Array.from({length:10}, defaultRow);
+      $("#cAiPanel").hidden = true; cAiRowIndex = -1;
+      renderRows();
+    }
+  });
+  $("#cCopyPromptBtn").addEventListener("click", ()=> copyText($("#cPromptBox").textContent, $("#cPromptCopied")));
+  $("#cAiClose").addEventListener("click", ()=>{ $("#cAiPanel").hidden = true; cAiRowIndex = -1; });
+  renderVariationButtons($("#cVariations"), cActiveVariations, refreshClassPrompt);
+}
+
+function hydrate(){
+  $("#toneSel").value = state.tone || "Standard";
+  $("#limitSel").value = state.limit || "";
+  $("#limitCustom").hidden = state.limit !== "custom";
+  $("#limitCustom").value = state.limitCustom || "";
+  $("#dName").value = state.dash.name;
+  $("#dPronoun").value = state.dash.pronoun;
+  $("#dIep").checked = state.dash.iep;
+}
+
+load();
+wire();
+hydrate();
+renderSkillLines();
+renderCbSetup();
+renderRows();
+refreshDash();
+</script>
+</body>
+</html>
