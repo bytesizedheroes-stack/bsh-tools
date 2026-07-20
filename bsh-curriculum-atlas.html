@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSH Curriculum Atlas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --navy:#001858;
+    --navy-soft:#233768;
+    --teal:#2BD4C8;
+    --teal-deep:#1AA89D;
+    --patch:#2EC4D6;
+    --orange:#FF8A00;
+    --yellow:#FFD220;
+    --cream:#FAF8F3;
+    --card:#FFFFFF;
+    --line:#E6E2D8;
+    --ink:#1C2333;
+    --muted:#697088;
+    --danger-bg:#FFF3E2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  h1,h2,h3,.brand{font-family:'Fredoka',system-ui,sans-serif;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    background:var(--navy);
+    color:#fff;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .brand-block{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:11px;
+    background:linear-gradient(135deg, var(--teal), var(--patch));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka';font-weight:700;color:var(--navy);font-size:18px;
+    flex-shrink:0;
+  }
+  .brand{font-size:21px;font-weight:600;letter-spacing:.2px;}
+  .tagline{font-size:12.5px;color:#B9C2E0;margin-top:1px;}
+  .topbar-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn{
+    border:1px solid transparent;
+    border-radius:9px;
+    padding:9px 15px;
+    font-size:13.5px;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:transform .08s ease, filter .12s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--teal);color:var(--navy);}
+  .btn-primary:hover{filter:brightness(1.06);}
+  .btn-ghost{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.25);}
+  .btn-ghost:hover{background:rgba(255,255,255,.16);}
+  .btn-outline{background:transparent;color:var(--navy);border-color:var(--line);}
+  .btn-outline:hover{background:#F1EEE4;}
+  .btn-danger{background:transparent;color:#B8460E;border-color:#F0C9A6;}
+  .btn-danger:hover{background:#FFF1E6;}
+  .btn-sm{padding:6px 11px;font-size:12.5px;}
+
+  /* ---------- layout ---------- */
+  .wrap{max-width:1280px;margin:0 auto;padding:26px 28px 60px;}
+
+  /* ---------- stat strip ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .stat{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(20,20,50,.04);
+  }
+  .stat.clickable{cursor:pointer;transition:box-shadow .15s ease, border-color .15s ease;}
+  .stat.clickable:hover{box-shadow:0 4px 14px rgba(20,20,50,.08);border-color:#D8D2C2;}
+  .stat-num{font-family:'Fredoka';font-size:30px;font-weight:600;color:var(--navy);line-height:1;}
+  .stat-num.warn{color:var(--orange);}
+  .stat-label{font-size:12.5px;color:var(--muted);margin-top:6px;font-weight:500;}
+
+  /* ---------- filter bar ---------- */
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    box-shadow:0 1px 2px rgba(20,20,50,.04);
+  }
+  .filterbar{
+    padding:16px 18px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    border-bottom:1px solid var(--line);
+  }
+  .search-input{
+    flex:1 1 220px;
+    padding:9px 13px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    font-size:13.5px;
+    background:var(--cream);
+  }
+  .search-input:focus{outline:2px solid var(--teal);outline-offset:1px;background:#fff;}
+  select.chip-select{
+    padding:8px 11px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    font-size:13px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .toggle-gap{
+    display:flex;align-items:center;gap:7px;
+    padding:8px 12px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--muted);
+    background:#fff;
+    user-select:none;
+  }
+  .toggle-gap input{accent-color:var(--orange);width:15px;height:15px;}
+  .toggle-gap.active{background:var(--danger-bg);border-color:#F0C9A6;color:#B8460E;}
+  .clear-link{font-size:12.5px;color:var(--teal-deep);font-weight:600;background:none;border:none;text-decoration:underline;padding:4px 2px;}
+
+  /* ---------- table ---------- */
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--muted);
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    font-weight:600;
+  }
+  tbody td{
+    padding:13px 16px;
+    border-bottom:1px solid #F0EDE3;
+    vertical-align:middle;
+    font-size:13.5px;
+  }
+  tbody tr{cursor:pointer;transition:background .1s ease;}
+  tbody tr:hover{background:#FAF6EC;}
+  tbody tr:last-child td{border-bottom:none;}
+  .lesson-title{font-weight:600;color:var(--navy);}
+  .lesson-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+  .tag{
+    display:inline-block;
+    padding:3px 9px;
+    border-radius:999px;
+    font-size:11.5px;
+    font-weight:600;
+    background:#EEF1FA;
+    color:var(--navy-soft);
+    margin:2px 3px 2px 0;
+  }
+  .tag-line{background:var(--navy);color:#fff;}
+  .empty-state{padding:60px 20px;text-align:center;color:var(--muted);}
+  .empty-state h3{color:var(--navy);margin-bottom:6px;}
+
+  /* completeness ring */
+  .ring{
+    width:38px;height:38px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;flex-shrink:0;
+  }
+  .ring-inner{
+    width:29px;height:29px;border-radius:50%;
+    background:var(--card);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--navy);
+  }
+  .ring-row{display:flex;align-items:center;gap:10px;}
+
+  /* ---------- modal / detail ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,15,35,.45);
+    display:none;align-items:flex-start;justify-content:center;
+    padding:36px 18px;overflow-y:auto;z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:#fff;border-radius:18px;max-width:760px;width:100%;
+    box-shadow:0 20px 60px rgba(0,10,40,.25);
+    animation:pop .15s ease;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .modal-head{
+    padding:20px 26px;border-bottom:1px solid var(--line);
+    display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  }
+  .modal-head h2{margin:0 0 4px;font-size:20px;color:var(--navy);}
+  .modal-head .sub{font-size:13px;color:var(--muted);}
+  .modal-close{
+    background:#F1EEE4;border:none;border-radius:9px;width:32px;height:32px;
+    font-size:16px;color:var(--muted);flex-shrink:0;
+  }
+  .modal-close:hover{background:#E6E2D4;}
+  .modal-body{padding:22px 26px 26px;}
+  .section-label{
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--muted);font-weight:700;margin:20px 0 10px;
+  }
+  .section-label:first-child{margin-top:0;}
+  .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;}
+  .kv{font-size:13.5px;}
+  .kv b{display:block;color:var(--navy);font-weight:600;margin-bottom:2px;}
+  .kv span{color:var(--ink);}
+
+  .checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;}
+  .check-item{
+    display:flex;align-items:flex-start;gap:8px;
+    padding:9px 11px;border-radius:9px;background:var(--cream);
+    font-size:13px;
+  }
+  .check-item.ok{background:#EAFBF9;}
+  .check-item.gap{background:var(--danger-bg);}
+  .check-item.na{background:#F2F2F2;color:var(--muted);}
+  .check-dot{
+    width:17px;height:17px;border-radius:50%;flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:800;color:#fff;
+  }
+  .check-dot.ok{background:var(--teal-deep);}
+  .check-dot.gap{background:var(--orange);}
+  .check-dot.na{background:#B9B9B9;}
+  .check-label{font-weight:600;color:var(--ink);}
+  .check-note{display:block;font-size:11.5px;color:var(--muted);margin-top:1px;}
+
+  .notes-box{
+    background:var(--cream);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;font-size:13px;color:var(--ink);white-space:pre-wrap;
+  }
+  .modal-footer{
+    padding:16px 26px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+  }
+  .touched{font-size:12px;color:var(--muted);}
+
+  /* ---------- form ---------- */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-grid .full{grid-column:1/-1;}
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--navy-soft);margin-bottom:5px;}
+  .form-grid input[type=text], .form-grid select, .form-grid textarea{
+    width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;
+    font-size:13.5px;background:var(--cream);
+  }
+  .form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus{
+    outline:2px solid var(--teal);outline-offset:1px;background:#fff;
+  }
+  textarea{resize:vertical;min-height:56px;}
+  .checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-top:4px;}
+  .checkbox-field{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    background:var(--cream);border:1px solid var(--line);border-radius:9px;padding:9px 12px;
+  }
+  .checkbox-field span{font-size:13px;font-weight:600;color:var(--ink);}
+  .tri-select{border:1px solid var(--line);border-radius:7px;font-size:12px;padding:4px 6px;background:#fff;}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+  .form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px;padding-top:16px;border-top:1px solid var(--line);}
+
+  .footer-note{
+    text-align:center;color:var(--muted);font-size:12px;margin-top:30px;line-height:1.7;
+  }
+  .footer-note b{color:var(--navy-soft);}
+
+  @media(max-width:760px){
+    .stats{grid-template-columns:1fr 1fr;}
+    .kv-grid, .checklist, .form-grid, .checkbox-grid{grid-template-columns:1fr;}
+    thead{display:none;}
+    tbody td{display:block;border:none;padding:4px 16px;}
+    tbody tr{border-bottom:1px solid var(--line);padding:10px 0;display:block;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand-block">
+    <div class="brand-mark">A</div>
+    <div>
+      <div class="brand">BSH Curriculum Atlas</div>
+      <div class="tagline">One place to see what's built, what's missing, and what's next.</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost btn-sm" id="btnImport">Import JSON</button>
+    <input type="file" id="fileInput" accept=".json" style="display:none">
+    <button class="btn btn-ghost btn-sm" id="btnExport">Export JSON</button>
+    <button class="btn btn-primary" id="btnAdd">+ Add Lesson</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="stats" id="statStrip"></div>
+
+  <div class="panel">
+    <div class="filterbar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search title, topic, companion, standard…">
+      <select class="chip-select" id="filterLine"><option value="">All lines</option></select>
+      <select class="chip-select" id="filterBand"><option value="">All grade bands</option></select>
+      <select class="chip-select" id="filterCompanion"><option value="">All companions</option></select>
+      <select class="chip-select" id="filterMove"><option value="">All Hero Moves</option></select>
+      <label class="toggle-gap" id="gapToggleWrap">
+        <input type="checkbox" id="gapToggle"> Needs attention only
+      </label>
+      <button class="clear-link" id="btnClear">Clear filters</button>
+    </div>
+    <div id="tableWrap"></div>
+  </div>
+
+  <div class="footer-note">
+    <div><b>BSH Curriculum Atlas</b> · v1.0 · lesson data lives in this file's memory only</div>
+    <div>Export after edits and keep the JSON in Drive — that file is the source of truth, this page is the lens on it.</div>
+  </div>
+</div>
+
+<!-- Detail modal -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal" id="detailModal"></div>
+</div>
+
+<!-- Add/Edit modal -->
+<div class="overlay" id="formOverlay">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-head">
+      <div>
+        <h2 id="formTitle">Add Lesson</h2>
+        <div class="sub">Fields marked * are required</div>
+      </div>
+      <button class="modal-close" id="formClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="lessonForm"></form>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BSH CURRICULUM ATLAS — V1
+   Single-file, dependency-free. Data lives in memory during the
+   session; Export/Import JSON is the persistence model (keep the
+   file in Drive — see the design conversation this was built from).
+   ============================================================ */
+
+/* ---------- component checklist definition ---------- */
+/* value: true (present) | false (gap) | "na" (deliberately not applicable) | "inline" (satisfied, handled inline rather than as a dedicated component) */
+const COMPONENTS = [
+  { key:"standards",         label:"Standards alignment",        group:"core" },
+  { key:"objectives",        label:"Learning objectives",        group:"core" },
+  { key:"checkForUnderstanding", label:"Check for understanding", group:"core" },
+  { key:"scoredAssessment",  label:"Scored assessment",          group:"core" },
+  { key:"rubric",            label:"Student-facing rubric",      group:"core" },
+  { key:"vocab",             label:"Key vocabulary",             group:"core" },
+  { key:"materials",         label:"Materials & time",           group:"core" },
+  { key:"answerKey",         label:"Answer key",                 group:"core" },
+  { key:"heroMoveSpec",      label:"Hero Move spec",             group:"line" },
+  { key:"companionCasting",  label:"Companion casting (palette)",group:"line" },
+  { key:"overviewToU",       label:"Overview + Terms of Use",    group:"line" },
+  { key:"sensitivityNote",   label:"Sensitivity note",           group:"line" },
+];
+
+/* ---------- seed data ----------
+   All six lessons below reflect the CyberS audit run in this
+   thread (Drive files pulled and scanned) plus the rubric /
+   scored-check / vocab / sensitivity edits confirmed complete
+   as of 2026-07-20. Standards codes are included only where the
+   exact text was verified from source; others are flagged for a
+   quick copy-in from the Teacher Guide. */
+const SEED = [
+  {
+    id:"cybers-scam-3-5",
+    title:"Scam Recognition",
+    line:"CyberS",
+    gradeBand:"3-5",
+    topic:"Recognizing the 'too good to be true' scam pattern",
+    status:"Live",
+    companions:["Cy"],
+    heroMove:"Spot the Setup™",
+    standards:["CSTA 1B-NI-05","ISTE 1.2.d"],
+    lastTouched:"2026-07-20",
+    notes:"Pilot lesson for the CyberS Scored Check + Rubric pattern.",
+    components:{standards:true,objectives:true,checkForUnderstanding:true,scoredAssessment:true,rubric:true,vocab:"inline",materials:true,answerKey:true,heroMoveSpec:true,companionCasting:true,overviewToU:true,sensitivityNote:true}
+  },
+  {
+    id:"cybers-databreach-3-5",
+    title:"Data Breach Basics",
+    line:"CyberS",
+    gradeBand:"3-5",
+    topic:"What a data breach is and the three-step response",
+    status:"Live",
+    companions:["Cy","Patch"],
+    heroMove:"Logic Lynx — sort: \"My Job or the Company's Job?\"",
+    standards:["Present — verify exact CSTA/ISTE codes against Teacher Guide"],
+    lastTouched:"2026-07-20",
+    notes:"",
+    components:{standards:true,objectives:true,checkForUnderstanding:true,scoredAssessment:true,rubric:true,vocab:"inline",materials:true,answerKey:true,heroMoveSpec:true,companionCasting:true,overviewToU:true,sensitivityNote:true}
+  },
+  {
+    id:"cybers-password-3-5",
+    title:"Password Hygiene & 2FA",
+    line:"CyberS",
+    gradeBand:"3-5",
+    topic:"Strong passwords, password reuse risk, and two-factor auth",
+    status:"Live",
+    companions:["Codi"],
+    heroMove:"Cy — light framing (no discrete Hero Move this lesson)",
+    standards:["Present — verify exact CSTA/ISTE codes against Teacher Guide"],
+    lastTouched:"2026-07-20",
+    notes:"No sensitivity note by design — content isn't sensitive.",
+    components:{standards:true,objectives:true,checkForUnderstanding:true,scoredAssessment:true,rubric:true,vocab:"inline",materials:true,answerKey:true,heroMoveSpec:true,companionCasting:true,overviewToU:true,sensitivityNote:"na"}
+  },
+  {
+    id:"cybers-databreach-6-8",
+    title:"Data Breach Basics",
+    line:"CyberS",
+    gradeBand:"6-8",
+    topic:"Case study investigation — Canvas & PowerSchool breaches",
+    status:"Live",
+    companions:["Cy"],
+    heroMove:"Logic Lynx (sequencing) + Data Duck (spot the fake)",
+    standards:["Present — verify exact CSTA/ISTE codes against Teacher Guide"],
+    lastTouched:"2026-07-20",
+    notes:"Breach case-study dates confirmed correct (year-only, no month) — 2026 Canvas, 2025 PowerSchool.",
+    components:{standards:true,objectives:true,checkForUnderstanding:true,scoredAssessment:true,rubric:true,vocab:true,materials:true,answerKey:true,heroMoveSpec:true,companionCasting:true,overviewToU:true,sensitivityNote:true}
+  },
+  {
+    id:"cybers-scam-6-8",
+    title:"Scam Recognition",
+    line:"CyberS",
+    gradeBand:"6-8",
+    topic:"Gallery-walk investigation — hook / ask / pressure analysis",
+    status:"Live",
+    companions:["Cy"],
+    heroMove:"Spot the Setup™",
+    standards:["CSTA 2-NI-05"],
+    lastTouched:"2026-07-20",
+    notes:"Vocabulary + Framework Reference Sheet placed as first page of Student Pack, ahead of the gallery-walk case work.",
+    components:{standards:true,objectives:true,checkForUnderstanding:true,scoredAssessment:true,rubric:true,vocab:true,materials:true,answerKey:true,heroMoveSpec:true,companionCasting:true,overviewToU:true,sensitivityNote:true}
+  },
+  {
+    id:"cybers-phishing-6-8",
+    title:"Phishing & Social Engineering",
+    line:"CyberS",
+    gradeBand:"6-8",
+    topic:"Case file investigation — phishing, spear phishing, smishing, vishing",
+    status:"Approved",
+    companions:["Cy"],
+    heroMove:"Spot the Setup™",
+    standards:["Present — verify exact CSTA/ISTE codes against Teacher Guide"],
+    lastTouched:"2026-07-20",
+    notes:"Was the one lesson still missing its sensitivity note going into this audit — now added, written in Cy's register, alongside the existing fictional-scenario note.",
+    components:{standards:true,objectives:true,checkForUnderstanding:true,scoredAssessment:true,rubric:true,vocab:true,materials:true,answerKey:true,heroMoveSpec:true,companionCasting:true,overviewToU:true,sensitivityNote:true}
+  }
+];
+
+/* ---------- state ---------- */
+let lessons = JSON.parse(JSON.stringify(SEED));
+let editingId = null;
+
+/* ---------- helpers ---------- */
+function uid(){ return 'lsn-' + Math.random().toString(36).slice(2,10); }
+
+function applicableEntries(components){
+  return COMPONENTS.filter(c => components[c.key] !== "na");
+}
+function completeCount(components){
+  const app = applicableEntries(components);
+  const done = app.filter(c => {
+    const v = components[c.key];
+    return v === true || v === "inline";
+  });
+  return { done: done.length, total: app.length };
+}
+function hasGap(components){
+  const { done, total } = completeCount(components);
+  return done < total;
+}
+function ringStyle(components){
+  const { done, total } = completeCount(components);
+  const pct = total ? Math.round((done/total)*100) : 100;
+  const color = pct === 100 ? 'var(--teal-deep)' : (pct >= 60 ? 'var(--yellow)' : 'var(--orange)');
+  return { pct, color, done, total };
+}
+function uniqueSorted(arr){ return [...new Set(arr)].sort(); }
+function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ---------- filter state ---------- */
+let filters = { q:"", line:"", band:"", companion:"", move:"", gapOnly:false };
+
+function filteredLessons(){
+  return lessons.filter(l => {
+    if (filters.line && l.line !== filters.line) return false;
+    if (filters.band && l.gradeBand !== filters.band) return false;
+    if (filters.companion && !l.companions.includes(filters.companion)) return false;
+    if (filters.move && l.heroMove !== filters.move) return false;
+    if (filters.gapOnly && !hasGap(l.components)) return false;
+    if (filters.q){
+      const hay = [l.title,l.topic,l.line,l.gradeBand,...(l.companions||[]),l.heroMove,...(l.standards||[]),l.notes]
+        .join(' ').toLowerCase();
+      if (!hay.includes(filters.q.toLowerCase())) return false;
+    }
+    return true;
+  });
+}
+
+/* ---------- render: filter dropdowns ---------- */
+function renderFilterOptions(){
+  const lines = uniqueSorted(lessons.map(l=>l.line));
+  const bands = uniqueSorted(lessons.map(l=>l.gradeBand));
+  const companions = uniqueSorted(lessons.flatMap(l=>l.companions));
+  const moves = uniqueSorted(lessons.map(l=>l.heroMove).filter(Boolean));
+
+  fillSelect('filterLine', lines, 'All lines');
+  fillSelect('filterBand', bands, 'All grade bands');
+  fillSelect('filterCompanion', companions, 'All companions');
+  fillSelect('filterMove', moves, 'All Hero Moves');
+}
+function fillSelect(id, options, allLabel){
+  const sel = document.getElementById(id);
+  const current = sel.value;
+  sel.innerHTML = `<option value="">${allLabel}</option>` + options.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('');
+  if (options.includes(current)) sel.value = current;
+}
+
+/* ---------- render: stat strip ---------- */
+function renderStats(){
+  const total = lessons.length;
+  const lines = uniqueSorted(lessons.map(l=>l.line)).length;
+  const gapCount = lessons.filter(l=>hasGap(l.components)).length;
+  const bands = uniqueSorted(lessons.map(l=>l.gradeBand)).length;
+
+  document.getElementById('statStrip').innerHTML = `
+    <div class="stat">
+      <div class="stat-num">${total}</div>
+      <div class="stat-label">Lessons tracked</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">${lines}</div>
+      <div class="stat-label">Lines / series</div>
+    </div>
+    <div class="stat clickable" id="statGap">
+      <div class="stat-num ${gapCount>0?'warn':''}">${gapCount}</div>
+      <div class="stat-label">${gapCount===0? 'Everything\'s complete right now' : 'Need attention — click to view'}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">${bands}</div>
+      <div class="stat-label">Grade bands covered</div>
+    </div>
+  `;
+  document.getElementById('statGap').addEventListener('click', ()=>{
+    document.getElementById('gapToggle').checked = true;
+    filters.gapOnly = true;
+    renderAll();
+  });
+}
+
+/* ---------- render: table ---------- */
+function ringSVG(components){
+  const { pct, color, done, total } = ringStyle(components);
+  return `<div class="ring-row">
+    <div class="ring" style="background:conic-gradient(${color} ${pct}%, #E9E5D9 0)">
+      <div class="ring-inner">${done}/${total}</div>
+    </div>
+  </div>`;
+}
+
+function renderTable(){
+  const rows = filteredLessons();
+  const wrap = document.getElementById('tableWrap');
+
+  if (rows.length === 0){
+    wrap.innerHTML = `<div class="empty-state">
+      <h3>No lessons match these filters</h3>
+      <div>Clear filters to see everything, or add a lesson to start tracking it.</div>
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Lesson</th><th>Line / Band</th><th>Companion(s)</th><th>Hero Move</th><th>Standards</th><th>Complete</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(l => `
+          <tr data-id="${l.id}">
+            <td>
+              <div class="lesson-title">${esc(l.title)}</div>
+              <div class="lesson-sub">${esc(l.topic||'')}</div>
+            </td>
+            <td><span class="tag tag-line">${esc(l.line)}</span><span class="tag">${esc(l.gradeBand)}</span></td>
+            <td>${(l.companions||[]).map(c=>`<span class="tag">${esc(c)}</span>`).join('')}</td>
+            <td>${esc(l.heroMove||'—')}</td>
+            <td>${(l.standards&&l.standards.length) ? l.standards.length + ' listed' : '<span style="color:var(--orange);font-weight:600;">none</span>'}</td>
+            <td>${ringSVG(l.components)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  wrap.querySelectorAll('tbody tr').forEach(tr=>{
+    tr.addEventListener('click', ()=> openDetail(tr.dataset.id));
+  });
+}
+
+function renderAll(){
+  renderStats();
+  renderFilterOptions();
+  renderTable();
+}
+
+/* ---------- detail modal ---------- */
+function openDetail(id){
+  const l = lessons.find(x=>x.id===id);
+  if (!l) return;
+  const { done, total } = completeCount(l.components);
+
+  const checklistHtml = COMPONENTS.map(c=>{
+    const v = l.components[c.key];
+    let cls, dot, note;
+    if (v === "na"){ cls='na'; dot='—'; note='Not applicable'; }
+    else if (v === "inline"){ cls='ok'; dot='✓'; note='Handled inline'; }
+    else if (v === true){ cls='ok'; dot='✓'; note=''; }
+    else { cls='gap'; dot='!'; note='Missing'; }
+    return `<div class="check-item ${cls}">
+      <div class="check-dot ${cls}">${dot}</div>
+      <div><span class="check-label">${c.label}</span>${note?`<span class="check-note">${note}</span>`:''}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('detailModal').innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>${esc(l.title)} <span style="color:var(--muted);font-weight:500;font-size:15px;">· ${esc(l.gradeBand)}</span></h2>
+        <div class="sub">${esc(l.line)} ${l.topic?'· '+esc(l.topic):''}</div>
+      </div>
+      <button class="modal-close" id="detailClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="section-label">Snapshot</div>
+      <div class="kv-grid">
+        <div class="kv"><b>Companion(s)</b><span>${(l.companions||[]).join(', ')||'—'}</span></div>
+        <div class="kv"><b>Hero Move</b><span>${esc(l.heroMove||'—')}</span></div>
+        <div class="kv"><b>Status</b><span>${esc(l.status||'—')}</span></div>
+        <div class="kv"><b>Standards</b><span>${(l.standards||[]).join('; ')||'None on file'}</span></div>
+      </div>
+
+      <div class="section-label">Completeness — ${done}/${total} applicable components</div>
+      <div class="checklist">${checklistHtml}</div>
+
+      ${l.notes ? `<div class="section-label">Notes</div><div class="notes-box">${esc(l.notes)}</div>` : ''}
+    </div>
+    <div class="modal-footer">
+      <div class="touched">Last touched ${esc(l.lastTouched||'—')}</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-danger btn-sm" id="detailDelete">Delete</button>
+        <button class="btn btn-outline btn-sm" id="detailEdit">Edit</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('detailOverlay').classList.add('show');
+  document.getElementById('detailClose').addEventListener('click', closeDetail);
+  document.getElementById('detailEdit').addEventListener('click', ()=>{ closeDetail(); openForm(l.id); });
+  document.getElementById('detailDelete').addEventListener('click', ()=>{
+    if (confirm(`Remove "${l.title}" from the Atlas? This can't be undone unless you re-import a saved JSON.`)){
+      lessons = lessons.filter(x=>x.id!==l.id);
+      closeDetail();
+      renderAll();
+    }
+  });
+}
+function closeDetail(){ document.getElementById('detailOverlay').classList.remove('show'); }
+
+/* ---------- add / edit form ---------- */
+function openForm(id){
+  editingId = id || null;
+  const l = id ? lessons.find(x=>x.id===id) : {
+    title:'', line:'', gradeBand:'', topic:'', status:'In progress',
+    companions:[], heroMove:'', standards:[], notes:'', lastTouched:'',
+    components: Object.fromEntries(COMPONENTS.map(c=>[c.key,false]))
+  };
+
+  document.getElementById('formTitle').textContent = id ? 'Edit Lesson' : 'Add Lesson';
+
+  const checkboxRows = COMPONENTS.map(c=>{
+    const v = l.components[c.key];
+    return `
+      <div class="checkbox-field">
+        <span>${c.label}</span>
+        <select class="tri-select" data-comp="${c.key}">
+          <option value="true" ${v===true?'selected':''}>Present</option>
+          <option value="inline" ${v==='inline'?'selected':''}>Inline</option>
+          <option value="false" ${v===false?'selected':''}>Missing</option>
+          <option value="na" ${v==='na'?'selected':''}>N/A</option>
+        </select>
+      </div>`;
+  }).join('');
+
+  document.getElementById('lessonForm').innerHTML = `
+    <div class="form-grid">
+      <div class="full"><label>Title *</label><input type="text" id="f_title" value="${esc(l.title)}" required></div>
+      <div><label>Line / series *</label><input type="text" id="f_line" value="${esc(l.line)}" placeholder="e.g. CyberS" required></div>
+      <div><label>Grade band *</label><input type="text" id="f_band" value="${esc(l.gradeBand)}" placeholder="e.g. 6-8" required></div>
+      <div class="full"><label>Topic / one-line summary</label><input type="text" id="f_topic" value="${esc(l.topic||'')}"></div>
+      <div><label>Companion(s) — comma separated</label><input type="text" id="f_companions" value="${esc((l.companions||[]).join(', '))}"></div>
+      <div><label>Hero Move</label><input type="text" id="f_move" value="${esc(l.heroMove||'')}"></div>
+      <div><label>Status</label>
+        <select id="f_status">
+          ${['In progress','In review','Approved','Live'].map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div><label>Last touched</label><input type="text" id="f_touched" value="${esc(l.lastTouched||'')}" placeholder="YYYY-MM-DD"></div>
+      <div class="full"><label>Standards — one per line</label><textarea id="f_standards">${esc((l.standards||[]).join('\n'))}</textarea></div>
+      <div class="full"><label>Notes</label><textarea id="f_notes">${esc(l.notes||'')}</textarea></div>
+    </div>
+
+    <div class="section-label" style="margin-top:22px;">Completeness checklist</div>
+    <div class="hint" style="margin-bottom:8px;">"Inline" and "N/A" both count as satisfied — they're deliberate choices, not gaps.</div>
+    <div class="checkbox-grid">${checkboxRows}</div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline" id="formCancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">${id ? 'Save changes' : 'Add lesson'}</button>
+    </div>
+  `;
+
+  document.getElementById('formOverlay').classList.add('show');
+  document.getElementById('formCancel').addEventListener('click', closeForm);
+  document.getElementById('lessonForm').addEventListener('submit', onFormSubmit);
+}
+function closeForm(){ document.getElementById('formOverlay').classList.remove('show'); editingId=null; }
+
+function onFormSubmit(e){
+  e.preventDefault();
+  const components = {};
+  document.querySelectorAll('[data-comp]').forEach(sel=>{
+    const val = sel.value;
+    components[sel.dataset.comp] = val === 'true' ? true : (val === 'false' ? false : val);
+  });
+  const rec = {
+    id: editingId || uid(),
+    title: document.getElementById('f_title').value.trim(),
+    line: document.getElementById('f_line').value.trim(),
+    gradeBand: document.getElementById('f_band').value.trim(),
+    topic: document.getElementById('f_topic').value.trim(),
+    status: document.getElementById('f_status').value,
+    companions: document.getElementById('f_companions').value.split(',').map(s=>s.trim()).filter(Boolean),
+    heroMove: document.getElementById('f_move').value.trim(),
+    standards: document.getElementById('f_standards').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    notes: document.getElementById('f_notes').value.trim(),
+    lastTouched: document.getElementById('f_touched').value.trim(),
+    components
+  };
+  if (editingId){
+    lessons = lessons.map(l => l.id===editingId ? rec : l);
+  } else {
+    lessons.push(rec);
+  }
+  closeForm();
+  renderAll();
+}
+
+/* ---------- export / import ---------- */
+function exportJSON(){
+  const payload = { meta:{ version:"1.0", exported: new Date().toISOString().slice(0,10) }, lessons };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bsh-curriculum-atlas-${payload.meta.exported}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function importJSON(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      const incoming = Array.isArray(data) ? data : data.lessons;
+      if (!Array.isArray(incoming)) throw new Error('No lessons array found in this file.');
+      lessons = incoming;
+      renderAll();
+    } catch(err){
+      alert('Could not read that file as an Atlas export: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------- wire up filter bar ---------- */
+document.getElementById('searchInput').addEventListener('input', e=>{ filters.q = e.target.value; renderTable(); });
+document.getElementById('filterLine').addEventListener('change', e=>{ filters.line = e.target.value; renderTable(); });
+document.getElementById('filterBand').addEventListener('change', e=>{ filters.band = e.target.value; renderTable(); });
+document.getElementById('filterCompanion').addEventListener('change', e=>{ filters.companion = e.target.value; renderTable(); });
+document.getElementById('filterMove').addEventListener('change', e=>{ filters.move = e.target.value; renderTable(); });
+document.getElementById('gapToggle').addEventListener('change', e=>{
+  filters.gapOnly = e.target.checked;
+  document.getElementById('gapToggleWrap').classList.toggle('active', filters.gapOnly);
+  renderTable();
+});
+document.getElementById('btnClear').addEventListener('click', ()=>{
+  filters = { q:"", line:"", band:"", companion:"", move:"", gapOnly:false };
+  document.getElementById('searchInput').value='';
+  document.getElementById('filterLine').value='';
+  document.getElementById('filterBand').value='';
+  document.getElementById('filterCompanion').value='';
+  document.getElementById('filterMove').value='';
+  document.getElementById('gapToggle').checked=false;
+  document.getElementById('gapToggleWrap').classList.remove('active');
+  renderTable();
+});
+
+document.getElementById('btnAdd').addEventListener('click', ()=>openForm(null));
+document.getElementById('formClose').addEventListener('click', closeForm);
+document.getElementById('formOverlay').addEventListener('click', e=>{ if(e.target.id==='formOverlay') closeForm(); });
+document.getElementById('detailOverlay').addEventListener('click', e=>{ if(e.target.id==='detailOverlay') closeDetail(); });
+
+document.getElementById('btnExport').addEventListener('click', exportJSON);
+document.getElementById('btnImport').addEventListener('click', ()=>document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', e=>{
+  if (e.target.files[0]) importJSON(e.target.files[0]);
+  e.target.value = '';
+});
+
+document.addEventListener('keydown', e=>{
+  if (e.key === 'Escape'){ closeDetail(); closeForm(); }
+});
+
+/* ---------- go ---------- */
+renderAll();
+</script>
+</body>
+</html>
