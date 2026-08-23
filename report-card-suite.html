@@ -210,14 +210,32 @@ td.flagged{background:var(--flag)}
 .disclaimer-row input{margin-top:.2rem;accent-color:var(--pine)}
 
 /* ---------- footer ---------- */
-footer{max-width:1060px;margin:0 auto;padding:0 1.5rem 2.5rem;color:var(--ink-soft);font-size:.82rem;display:flex;flex-wrap:wrap;gap:.5rem 2rem;justify-content:space-between}
+footer{max-width:1060px;margin:0 auto;padding:1.1rem 1.5rem 2.5rem;color:var(--ink-soft);font-size:.82rem;display:flex;flex-wrap:wrap;gap:.5rem 2rem;justify-content:space-between}
 footer a{color:var(--field);font-weight:700}
+
+.upgrade{
+  max-width:1060px;margin:1.6rem auto 0;padding:1.1rem 1.3rem;
+  background:var(--pine-tint);border:1px solid var(--pine);border-left:5px solid var(--pine);
+  border-radius:var(--radius);display:flex;flex-wrap:wrap;gap:1rem 1.6rem;align-items:center;
+}
+.upgrade .up-body{flex:1 1 22rem;min-width:0}
+.upgrade h3{font-family:'Roboto Condensed',sans-serif;font-size:1.1rem;color:var(--pine-dark);margin-bottom:.3rem}
+.upgrade p{font-size:.88rem;line-height:1.5;color:var(--ink)}
+.upgrade strong{color:var(--pine-dark)}
+.up-cta{
+  flex:0 0 auto;background:var(--field);color:#fff;text-decoration:none;font-weight:700;font-size:.92rem;
+  padding:.7rem 1.2rem;border-radius:7px;white-space:nowrap;transition:background .15s;
+}
+.up-cta:hover{background:var(--pine-dark)}
+.up-cta:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
 
 @media (max-width:720px){
   .skill-line{grid-template-columns:auto 1fr;grid-auto-rows:auto}
   .planbook-text{padding-left:1rem}
   .planbook{background:repeating-linear-gradient(to bottom,#FDFDFB 0,#FDFDFB calc(var(--line-h) - 1px),var(--rule) calc(var(--line-h) - 1px),var(--rule) var(--line-h))}
   .masthead-inner{flex-direction:column;gap:.4rem}
+  .upgrade{margin-left:1rem;margin-right:1rem}
+  .up-cta{width:100%;text-align:center}
 }
 </style>
 </head>
@@ -390,9 +408,17 @@ footer a{color:var(--field);font-weight:700}
 
 </main>
 
+<section class="upgrade">
+  <div class="up-body">
+    <h3>Want to own the engine?</h3>
+    <p>The Google Sheets edition lives in your own Drive and unlocks the <strong>fully editable Vault</strong> — rewrite any of the 288 sentences in your own voice, add your own wordings to the rotation, and every future comment uses your words. Includes the Class Builder, the Dashboard, and a built-in handbook. One-time purchase, yours forever.</p>
+  </div>
+  <a class="up-cta" id="sheetsLink" href="__TPT_URL__" target="_blank" rel="noopener">Get the Sheets edition</a>
+</section>
+
 <footer>
   <span>The Report Card Suite · Web edition v1.1 · © 2026 Byte-Sized Heroes</span>
-  <span>Prefer spreadsheets? <a href="#" id="sheetsLink">Get the Google Sheets edition</a></span>
+  <span>A Bricolage tool</span>
 </footer>
 
 <script>
