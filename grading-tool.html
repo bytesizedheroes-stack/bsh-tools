@@ -25,6 +25,8 @@
   .progress-label{font-size:11px;color:var(--muted);margin-top:2px;}
   .progress-bar-wrap{width:140px;height:4px;background:var(--border);border-radius:2px;margin-top:6px;margin-left:auto;}
   .progress-bar-fill{height:4px;background:var(--accent2);border-radius:2px;transition:width 0.3s;}
+  .class-size-input{width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:12px;padding:3px 6px;outline:none;text-align:center;}
+  .class-size-input:focus{border-color:var(--accent);}
 
   /* Session banner */
   .session-banner{background:rgba(124,106,247,0.08);border:1px solid rgba(124,106,247,0.2);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;gap:16px;align-items:flex-start;}
@@ -61,6 +63,9 @@
   .save-rubric-row input:focus{border-color:var(--accent);}
   .save-rubric-row input::placeholder{color:var(--muted);}
   .save-btn{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .saved-exemplar-btn{padding:4px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:11px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+  .saved-exemplar-btn:hover{border-color:var(--accent2);color:var(--text);}
+  .del-exemplar{color:var(--danger);font-size:12px;line-height:1;margin-left:2px;}
   .save-btn:hover{background:#6b59e0;}
 
   .grade-grid{display:flex;gap:10px;}
@@ -214,7 +219,11 @@
     </div>
     <div class="progress-block">
       <div class="progress-count"><span id="graded-count">0</span> graded</div>
-      <div class="progress-label">this session</div>
+      <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:2px">
+        <span style="font-size:11px;color:var(--muted)">of</span>
+        <input type="number" class="class-size-input" id="class-size" value="130" min="1" max="500" onchange="updateProgress()">
+        <span style="font-size:11px;color:var(--muted)">students</span>
+      </div>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
     </div>
   </header>
@@ -239,7 +248,19 @@
     <label>Anthropic API key</label>
     <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." oninput="onApiKeyInput()" autocomplete="off">
     <span class="api-key-status unset" id="api-key-status">&#9888; Key required</span>
-    <div class="api-key-tip">Paste your key from <a href="https://platform.claude.ai" target="_blank" rel="noopener">platform.claude.ai</a> &#8594; Get API Key. Stays in memory this session only &#8212; never stored. Need credits? Add $5 at the same site &#8212; enough for 130+ students.</div>
+    <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0">
+      <input type="checkbox" id="save-key-checkbox" onchange="toggleSaveKey()" style="width:auto;padding:0;margin:0"> Remember key
+    </label>
+    <div class="api-key-tip">Get your key at <a href="https://platform.claude.ai" target="_blank" rel="noopener">platform.claude.ai</a> &#8594; Get API Key. Check "Remember key" to store it in this browser. Need credits? Add $5 at the same site.</div>
+  </div>
+
+  <!-- Strict mode toggle -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;">
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;flex:1">
+      <input type="checkbox" id="strict-mode" style="width:auto;padding:0;margin:0">
+      <span style="font-size:13px;font-weight:500">Strict mode</span>
+    </label>
+    <span style="font-size:11px;color:var(--muted);line-height:1.5">When on, the AI defaults to the lower level for borderline cases, giving more consistent scores on ambiguous code.</span>
   </div>
 
   <!-- Step 1 -->
@@ -285,11 +306,16 @@
       <span class="step-badge badge-once">Set once per project</span>
     </div>
     <div class="step-body">
+      <div id="saved-exemplars-row" class="rubric-memory" style="display:none"></div>
       <div class="opt-label">Project brief, user profiles, planning examples, or reference code</div>
       <textarea id="exemplar-text" rows="5" placeholder="Paste exemplar content here. Label multiple exemplars clearly (see tip)."></textarea>
       <div class="tip">
         <strong style="color:var(--text);font-size:11px;">Multiple exemplars:</strong> separate with labels:<br>
         <code>=== USER PROFILE ===</code> · <code>=== EXEMPLAR CODE 1 ===</code> · <code>=== EXEMPLAR CODE 2 ===</code>
+      </div>
+      <div class="save-rubric-row" style="margin-top:8px">
+        <input type="text" id="exemplar-name" placeholder="Name this exemplar set (e.g. 6th HTML Alana)">
+        <button class="save-btn" style="background:var(--accent2);color:#0f0f11" onclick="saveExemplar()">Save exemplar</button>
       </div>
     </div>
   </div>
@@ -538,6 +564,7 @@ async function runGrading() {
 
   const planningSection = planning ? `\nSTUDENT PLANNING GUIDE:\n${planning}\n` : '';
 
+  const strictMode = document.getElementById('strict-mode').checked;
   const prompt = `You are grading a grade ${state.grade} student's web project.
 
 CANVAS RUBRIC (includes point ranges per level):
@@ -552,6 +579,7 @@ ${code}
 \`\`\`
 
 Score every REQUIRED criterion. Do NOT include optional or stretch criteria.
+${strictMode ? 'STRICT MODE: For any borderline case where evidence could support two different levels, always choose the lower level. Consistency over generosity.' : ''}
 ${planning ? 'Some criteria apply to planning guide, some to code, some to both.' : ''}
 
 For EVERY criterion — including design/UI ones — make a preliminary score from what the code reveals. Use function calls, variable names, element IDs, event handlers, and screen references as evidence. For criteria where visual design must also be confirmed:
@@ -571,7 +599,7 @@ Respond with ONLY valid JSON. No markdown fences, no preamble.
       "evidence": "2-3 sentences from the code",
       "visual_checklist": ["specific item to verify 1", "specific item to verify 2"],
       "canvas_hint": "6 words max",
-      "student_feedback": "One sentence to the student, warm and specific, no point values"
+      "student_feedback": "1-2 sentences written directly to the student. Style rules: no exclamation points, no em-dashes, no sentences beginning with And/But/Or/So/Because, no hollow openers like Great job or Nice work, no rhetorical questions, active voice, specific references to their actual code, one idea per sentence, varied sentence openings, no point values"
     }
   ],
   "notes": "Overall observations or empty string"
@@ -587,9 +615,9 @@ Respond with ONLY valid JSON. No markdown fences, no preamble.
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 2000,
-        system: 'You are an expert instructional assistant helping a middle school CS teacher grade web development projects. Always make a preliminary score from code. Be specific. Student feedback: warm, honest, actionable, middle-school level, no points. Output only valid JSON — no markdown, no preamble.',
+        system: 'You are an expert instructional assistant helping a middle school CS teacher grade web development projects. Always make a preliminary score from code. Be specific. Output only valid JSON — no markdown, no preamble. STUDENT FEEDBACK STYLE RULES — follow every one without exception: No exclamation points anywhere — warmth comes from word choice, not punctuation. No em-dashes. Never begin a sentence with: And, But, Or, So, Because, Also. No hollow openers: never start with Great job, Nice work, Excellent, Good job, Well done, or similar empty praise. No rhetorical questions of any kind. Active voice: write "You used headings correctly" not "Headings were used correctly". Be specific: reference the student\'s actual code elements, not generic descriptions. One idea per sentence — no run-ons. Vary sentence openings: do not start consecutive sentences the same way. No point values in student feedback. Tone: calm, direct, honest, and encouraging through specificity rather than enthusiasm.',
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -792,7 +820,8 @@ function renderLog() {
 function updateProgress() {
   const n = state.sessionLog.length;
   document.getElementById('graded-count').textContent = n;
-  const pct = Math.min(100, Math.round(n / state.totalStudents * 100));
+  const classSize = parseInt(document.getElementById('class-size').value) || 130;
+  const pct = Math.min(100, Math.round(n / classSize * 100));
   document.getElementById('progress-fill').style.width = pct + '%';
 }
 
@@ -829,7 +858,7 @@ function nextStudent() {
   document.getElementById('results').style.display = 'none';
   document.getElementById('float-btn').style.display = 'none';
   document.getElementById('student-name').focus();
-  window.scrollTo({top: document.getElementById('step-planning').classList.contains('hidden') ? 700 : 850, behavior:'smooth'});
+  document.getElementById('n5').closest('.step').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function clearStudentFields() {
@@ -855,6 +884,56 @@ function showError(msg) { const b=document.getElementById('error-box'); b.textCo
 
 // Init
 loadSavedRubrics();
+loadSavedExemplars();
+loadSavedApiKey();
+
+function loadSavedExemplars() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_exemplars') || '[]');
+    const row = document.getElementById('saved-exemplars-row');
+    if (!saved.length) { row.style.display = 'none'; return; }
+    row.style.display = 'flex';
+    row.innerHTML = saved.map((e,i) =>
+      `<button class="saved-exemplar-btn" onclick="loadExemplar(${i})">
+        ${e.name}
+        <span class="del-exemplar" onclick="deleteExemplar(event,${i})">&#x2715;</span>
+      </button>`
+    ).join('');
+  } catch(e) {}
+}
+
+function saveExemplar() {
+  const name = document.getElementById('exemplar-name').value.trim();
+  const text = document.getElementById('exemplar-text').value.trim();
+  if (!name) return alert('Enter a name for this exemplar set first.');
+  if (!text) return alert('Paste exemplar content before saving.');
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_exemplars') || '[]');
+    const existing = saved.findIndex(e => e.name === name);
+    if (existing >= 0) saved[existing].text = text;
+    else { if (saved.length >= 5) saved.shift(); saved.push({name, text}); }
+    localStorage.setItem('saved_exemplars', JSON.stringify(saved));
+    document.getElementById('exemplar-name').value = '';
+    loadSavedExemplars();
+  } catch(e) {}
+}
+
+function loadExemplar(i) {
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_exemplars') || '[]');
+    if (saved[i]) document.getElementById('exemplar-text').value = saved[i].text;
+  } catch(e) {}
+}
+
+function deleteExemplar(e, i) {
+  e.stopPropagation();
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_exemplars') || '[]');
+    saved.splice(i,1);
+    localStorage.setItem('saved_exemplars', JSON.stringify(saved));
+    loadSavedExemplars();
+  } catch(e) {}
+}
 
 function onApiKeyInput() {
   const val = document.getElementById('api-key-input').value.trim();
@@ -862,13 +941,38 @@ function onApiKeyInput() {
   if (val.startsWith('sk-ant-')) {
     status.textContent = '\u2713 Key set';
     status.className = 'api-key-status set';
+    if (document.getElementById('save-key-checkbox').checked) {
+      try { localStorage.setItem('anthropic_api_key', val); } catch(e) {}
+    }
   } else if (val.length > 0) {
     status.textContent = '\u26a0 Check key format';
     status.className = 'api-key-status unset';
   } else {
     status.textContent = '\u26a0 Key required';
     status.className = 'api-key-status unset';
+    try { localStorage.removeItem('anthropic_api_key'); } catch(e) {}
   }
+}
+
+function toggleSaveKey() {
+  const checked = document.getElementById('save-key-checkbox').checked;
+  const val = document.getElementById('api-key-input').value.trim();
+  try {
+    if (checked && val.startsWith('sk-ant-')) localStorage.setItem('anthropic_api_key', val);
+    else localStorage.removeItem('anthropic_api_key');
+  } catch(e) {}
+}
+
+function loadSavedApiKey() {
+  try {
+    const saved = localStorage.getItem('anthropic_api_key');
+    if (saved && saved.startsWith('sk-ant-')) {
+      document.getElementById('api-key-input').value = saved;
+      document.getElementById('save-key-checkbox').checked = true;
+      document.getElementById('api-key-status').textContent = '\u2713 Key set';
+      document.getElementById('api-key-status').className = 'api-key-status set';
+    }
+  } catch(e) {}
 }
 </script>
 </body>
