@@ -565,6 +565,14 @@ async function runGrading() {
   const planningSection = planning ? `\nSTUDENT PLANNING GUIDE:\n${planning}\n` : '';
 
   const strictMode = document.getElementById('strict-mode').checked;
+
+  const readingLevelMap = {
+    6: 'Write so a strong 6th grade reader (age 11 to 12) understands it on the first read. Keep sentences short. Use everyday words. If a sentence holds two ideas, split it into two sentences.',
+    7: 'Write so a 7th grade reader (age 12 to 13) understands it on the first read. Keep sentences fairly short and use everyday words. One idea per sentence.',
+    8: 'Write so an 8th grade reader (age 13 to 14) understands it on the first read. Sentences can run a little longer, but keep the vocabulary plain and tied to what the code actually does.'
+  };
+  const readingGuide = readingLevelMap[state.grade] || readingLevelMap[7];
+
   const prompt = `You are grading a grade ${state.grade} student's web project.
 
 CANVAS RUBRIC (includes point ranges per level):
@@ -599,7 +607,7 @@ Respond with ONLY valid JSON. No markdown fences, no preamble.
       "evidence": "2-3 sentences from the code",
       "visual_checklist": ["specific item to verify 1", "specific item to verify 2"],
       "canvas_hint": "6 words max",
-      "student_feedback": "1-2 sentences written directly to the student. Style rules: no exclamation points, no em-dashes, no sentences beginning with And/But/Or/So/Because, no hollow openers like Great job or Nice work, no rhetorical questions, active voice, specific references to their actual code, one idea per sentence, varied sentence openings, no point values"
+      "student_feedback": "1-2 sentences written directly to the student at a grade ${state.grade} reading level, plain words not developer jargon. Style rules: no exclamation points, no em-dashes, no sentences beginning with And/But/Or/So/Because, no hollow openers like Great job or Nice work, no rhetorical questions, active voice, specific references to their actual code, one idea per sentence, varied sentence openings, no point values"
     }
   ],
   "notes": "Overall observations or empty string"
@@ -617,7 +625,11 @@ Respond with ONLY valid JSON. No markdown fences, no preamble.
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 2000,
-        system: 'You are an expert instructional assistant helping a middle school CS teacher grade web development projects. Always make a preliminary score from code. Be specific. Output only valid JSON — no markdown, no preamble. STUDENT FEEDBACK STYLE RULES — follow every one without exception: No exclamation points anywhere — warmth comes from word choice, not punctuation. No em-dashes. Never begin a sentence with: And, But, Or, So, Because, Also. No hollow openers: never start with Great job, Nice work, Excellent, Good job, Well done, or similar empty praise. No rhetorical questions of any kind. Active voice: write "You used headings correctly" not "Headings were used correctly". Be specific: reference the student\'s actual code elements, not generic descriptions. One idea per sentence — no run-ons. Vary sentence openings: do not start consecutive sentences the same way. No point values in student feedback. Tone: calm, direct, honest, and encouraging through specificity rather than enthusiasm.',
+        system: `You are an expert instructional assistant helping a middle school CS teacher grade web development projects. Always make a preliminary score from code. Be specific. Output only valid JSON, no markdown, no preamble.
+
+STUDENT FEEDBACK STYLE RULES, follow every one without exception: No exclamation points anywhere; warmth comes from word choice, not punctuation. No em-dashes. Never begin a sentence with: And, But, Or, So, Because, Also. No hollow openers: never start with Great job, Nice work, Excellent, Good job, Well done, or similar empty praise. No rhetorical questions of any kind. Active voice: write "You used headings correctly" not "Headings were used correctly". Be specific: reference the student's actual code elements, not generic descriptions. One idea per sentence, no run-ons. Vary sentence openings: do not start consecutive sentences the same way. No point values in student feedback. Tone: calm, direct, honest, and encouraging through specificity rather than enthusiasm.
+
+READING LEVEL, this matters as much as the style rules above: ${readingGuide} Write for the student, not for another programmer. Do not write like a code review. Keep every concrete reference exactly as is: function names, variable names, shape names, key names, and what the code does on the screen. Replace abstract noun phrases and developer jargon with plain words a middle schooler would actually use. Banned as too abstract or too jargony: "intended visual behavior", "satisfies the requirement", "meaningful interactivity", "core artifact requirements", "maps to the elements", "drive animation", and any phrase built by stacking two or more abstract nouns together. Rewrite pattern: name the code thing first, then say what it does in plain words. Example of the fix: instead of "the wave effect placement ensures it renders on top, which matches the intended visual behavior" write "you drew the wave last, so it always shows up on top the way you planned".`,
         messages: [{ role: 'user', content: prompt }]
       })
     });
