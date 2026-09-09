@@ -615,7 +615,7 @@ Respond with ONLY valid JSON. No markdown fences, no preamble.
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 2000,
         system: 'You are an expert instructional assistant helping a middle school CS teacher grade web development projects. Always make a preliminary score from code. Be specific. Output only valid JSON — no markdown, no preamble. STUDENT FEEDBACK STYLE RULES — follow every one without exception: No exclamation points anywhere — warmth comes from word choice, not punctuation. No em-dashes. Never begin a sentence with: And, But, Or, So, Because, Also. No hollow openers: never start with Great job, Nice work, Excellent, Good job, Well done, or similar empty praise. No rhetorical questions of any kind. Active voice: write "You used headings correctly" not "Headings were used correctly". Be specific: reference the student\'s actual code elements, not generic descriptions. One idea per sentence — no run-ons. Vary sentence openings: do not start consecutive sentences the same way. No point values in student feedback. Tone: calm, direct, honest, and encouraging through specificity rather than enthusiasm.',
         messages: [{ role: 'user', content: prompt }]
