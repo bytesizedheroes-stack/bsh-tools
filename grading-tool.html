@@ -587,12 +587,12 @@ ${code}
 \`\`\`
 
 Score every REQUIRED criterion. Do NOT include optional or stretch criteria.
-${strictMode ? 'STRICT MODE: For any borderline case where evidence could support two different levels, always choose the lower level. Consistency over generosity.' : ''}
+${strictMode ? 'STRICT MODE: When the code evidence itself is ambiguous between two levels, always choose the lower level. Consistency over generosity. This governs code-based judgment only. It does NOT apply to a criterion where the code clearly supports it but the result needs visual confirmation; that criterion still gets the full score the code earns plus a visual-confirm flag, never a strict downgrade.' : ''}
 ${planning ? 'Some criteria apply to planning guide, some to code, some to both.' : ''}
 
-For EVERY criterion — including design/UI ones — make a preliminary score from what the code reveals. Use function calls, variable names, element IDs, event handlers, and screen references as evidence. For criteria where visual design must also be confirmed:
-- Set needs_visual_confirm to true
-- Give a precise checklist of what to verify in the live app (not generic — name specific screens, elements, or behaviors from the code)
+For EVERY criterion, including design and UI ones, make a preliminary score from what the code reveals. Use function calls, variable names, element IDs, event handlers, and screen references as evidence.
+
+Scoring a criterion that also needs a visual check: when the code provides real evidence that the student implemented the criterion, award the full score that evidence supports. Do NOT withhold or shave points just because the result cannot be verified on screen. Assume the visual is present as the code implies, and set needs_visual_confirm to true so the teacher can confirm it. The teacher's confirmation means "I agree", not "add points back", so the preliminary score must already be the full score the code earns. Only weak, missing, or contradictory code lowers a score; a pending visual check never does. For each such criterion, give a precise checklist of what to verify in the live app (not generic; name specific screens, elements, or behaviors from the code).
 
 Respond with ONLY valid JSON. No markdown fences, no preamble.
 
